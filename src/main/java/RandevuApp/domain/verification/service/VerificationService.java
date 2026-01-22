@@ -1,6 +1,7 @@
 package RandevuApp.domain.verification.service;
 
 import RandevuApp.api.ApiStatus;
+import RandevuApp.config.VerificationProperties;
 import RandevuApp.domain.notification.model.NotificationCategory;
 import RandevuApp.domain.notification.model.VerificationNotificationRequest;
 import RandevuApp.domain.notification.model.NotificationChannel;
@@ -39,10 +40,11 @@ public class VerificationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
+    private final VerificationProperties verificationProperties;
 
     public VerificationService(List<IVerificationStrategy> strategies,
                                INotificationService notificationService,
-                               VerificationTokenRepository tokenRepository, UserRepository userRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher) {
+                               VerificationTokenRepository tokenRepository, UserRepository userRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher, VerificationProperties verificationProperties) {
         this.notificationService = notificationService;
         this.tokenRepository = tokenRepository;
         // List to Map conversion for easy strategy lookup in constructor
@@ -51,6 +53,7 @@ public class VerificationService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.eventPublisher = eventPublisher;
+        this.verificationProperties = verificationProperties;
     }
 
     @Transactional
@@ -78,7 +81,7 @@ public class VerificationService {
         entity.setSecret(encodedSecret);
         entity.setType(request.getType());
         entity.setPurpose(purpose);
-        entity.setExpiresAt(Instant.now().plus(15, ChronoUnit.MINUTES));
+        entity.setExpiresAt(Instant.now().plus(verificationProperties.getTokenValidityMinutes(), ChronoUnit.MINUTES));
         tokenRepository.save(entity);
 
         // Prepare notification
@@ -127,7 +130,7 @@ public class VerificationService {
         }
 
         // Check attempt count
-        if (entity.isMaxAttemptsReached()) {
+        if (entity.isMaxAttemptsReached(verificationProperties.getMaxAttempts())) {
             throw new VerificationFailedException(ApiStatus.ERROR_TOO_MANY_ATTEMPTS, "Çok fazla hatalı deneme yapıldı. Lütfen yeni kod isteyin.");
         }
 

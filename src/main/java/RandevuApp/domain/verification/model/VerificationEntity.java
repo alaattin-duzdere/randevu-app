@@ -58,7 +58,7 @@ public class VerificationEntity {
         return Instant.now().isAfter(this.expiresAt);
     }
 
-    public boolean isMaxAttemptsReached() {
-        return this.attemptCount >= 3;
+    public boolean isMaxAttemptsReached(int maxAttempts) {
+        return this.attemptCount >= maxAttempts;
     }
 }
