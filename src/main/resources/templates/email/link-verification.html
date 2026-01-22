@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Hesap Doğrulama</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; padding-bottom: 20px; border-bottom: 1px solid #eeeeee; }
+        .content { padding: 20px 0; text-align: center; }
+        .button { display: inline-block; padding: 12px 24px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 20px; }
+        .footer { text-align: center; font-size: 12px; color: #888888; margin-top: 20px; border-top: 1px solid #eeeeee; padding-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Randevu App</h2>
+        </div>
+        <div class="content">
+            <h3>Hesabınızı Doğrulayın</h3>
+            <p>Merhaba,</p>
+            <p>Hesabınızı doğrulamak için lütfen aşağıdaki butona tıklayın. Bu link 15 dakika süreyle geçerlidir.</p>
+
+            <!-- Link değişkeni LinkVerificationStrategy'den geliyor -->
+            <a th:href="${link}" class="button">Hesabımı Doğrula</a>
+
+            <p style="margin-top: 20px; font-size: 12px;">
+                Eğer butona tıklayamıyorsanız, aşağıdaki linki tarayıcınıza kopyalayın:<br>
+                <span th:text="${link}" style="color: #007bff;"></span>
+            </p>
+        </div>
+        <div class="footer">
+            <p>Bu e-postayı siz talep etmediyseniz, lütfen dikkate almayınız.</p>
+        </div>
+    </div>
+</body>
+</html>
