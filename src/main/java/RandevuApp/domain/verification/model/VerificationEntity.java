@@ -26,7 +26,7 @@ public class VerificationEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "reference_id", nullable = false, unique = true)
+    @Column(name = "reference_id", nullable = false)
     private String referenceId;
 
     @Column(name = "user_id", nullable = false)

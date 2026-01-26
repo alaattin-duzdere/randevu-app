@@ -12,6 +12,7 @@ import RandevuApp.domain.verification.event.VerificationCompletedEvent;
 import RandevuApp.domain.verification.model.*;
 import RandevuApp.domain.verification.repository.VerificationTokenRepository;
 import RandevuApp.domain.verification.service.strategy.IVerificationStrategy;
+import RandevuApp.domain.verification.validator.VerificationFilterChainManager;
 import RandevuApp.exceptions.client.ResourceNotFoundException;
 import RandevuApp.exceptions.verification.VerificationExpiredException;
 import RandevuApp.exceptions.verification.VerificationFailedException;
@@ -41,10 +42,11 @@ public class VerificationService {
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final VerificationProperties verificationProperties;
+    private final VerificationFilterChainManager filterChainManager;
 
     public VerificationService(List<IVerificationStrategy> strategies,
                                INotificationService notificationService,
-                               VerificationTokenRepository tokenRepository, UserRepository userRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher, VerificationProperties verificationProperties) {
+                               VerificationTokenRepository tokenRepository, UserRepository userRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher, VerificationProperties verificationProperties, VerificationFilterChainManager filterChainManager) {
         this.notificationService = notificationService;
         this.tokenRepository = tokenRepository;
         // List to Map conversion for easy strategy lookup in constructor
@@ -54,16 +56,20 @@ public class VerificationService {
         this.passwordEncoder = passwordEncoder;
         this.eventPublisher = eventPublisher;
         this.verificationProperties = verificationProperties;
+        this.filterChainManager = filterChainManager;
     }
 
     @Transactional
     public void startVerification(VerificationRequest request) {
+        // Find user
+        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new ResourceNotFoundException("userId", "id", request.getUserId()));
+
+        // 1. Validate request through filter chain
+        filterChainManager.validate(request, user);
+
         IVerificationStrategy strategy = strategyMap.get(request.getType());
 
         log.warn("Verification Strategy: {}",strategy.toString());
-
-        // Find user
-        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new ResourceNotFoundException("userId", "id", request.getUserId()));
 
         // Generate secret and encode it
         String rawSecret = strategy.generateSecret();
