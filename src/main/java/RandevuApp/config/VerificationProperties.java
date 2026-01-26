@@ -13,4 +13,5 @@ public class VerificationProperties {
     private int tokenValidityMinutes = 15;
     private int maxAttempts = 3;
     private int codeLength = 6;
+    private int passwordResetTokenValidityMinutes = 15;
 }
