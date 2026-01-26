@@ -10,12 +10,14 @@ import java.util.Map;
 public class VerificationCompletedEvent {
     private final Long userId;
     private final VerificationPurpose purpose;
+    private final String referenceId;
     private final Map<String, Object> metadata;
     private final Instant completedAt;
 
-    public VerificationCompletedEvent(Long userId, VerificationPurpose purpose, Map<String, Object> metadata) {
+    public VerificationCompletedEvent(Long userId, VerificationPurpose purpose, String referenceId, Map<String, Object> metadata) {
         this.userId = userId;
         this.purpose = purpose;
+        this.referenceId = referenceId;
         this.metadata = metadata;
         this.completedAt = Instant.now();
     }

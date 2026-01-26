@@ -75,12 +75,16 @@ public class VerificationService {
         // Clean up old unconfirmed tokens (zombies) for this specific flow
         tokenRepository.deleteByUserIdAndTypeAndPurposeAndConfirmedAtIsNull(request.getUserId(), request.getType(), purpose);
 
+        // Resolve Reference ID (If specific ID provided use it, otherwise default to userId)
+        String referenceId = request.getReferenceId() != null ? request.getReferenceId() : String.valueOf(request.getUserId());
+
         // Create and save token
         VerificationEntity entity = new VerificationEntity();
         entity.setUserId(request.getUserId());
         entity.setSecret(encodedSecret);
         entity.setType(request.getType());
         entity.setPurpose(purpose);
+        entity.setReferenceId(referenceId);
         entity.setExpiresAt(Instant.now().plus(verificationProperties.getTokenValidityMinutes(), ChronoUnit.MINUTES));
         tokenRepository.save(entity);
 
@@ -150,6 +154,7 @@ public class VerificationService {
         VerificationCompletedEvent event = new VerificationCompletedEvent(
                 entity.getUserId(),
                 entity.getPurpose(),
+                entity.getReferenceId(),
                 entity.getMetadata()
         );
         eventPublisher.publishEvent(event);

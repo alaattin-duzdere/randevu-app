@@ -12,7 +12,8 @@ import java.util.UUID;
 @Table(name = "verification_tokens", indexes = {
         @Index(name = "idx_verification_user_type_purpose", columnList = "user_id, verification_type, purpose"), // Amaç bazlı arama için güncellendi
         @Index(name = "idx_verification_secret", columnList = "secret"), // Link ile token aramak için
-        @Index(name = "idx_verification_expires", columnList = "expires_at") // Süresi dolanları temizlemek için
+        @Index(name = "idx_verification_expires", columnList = "expires_at"), // Süresi dolanları temizlemek için
+        @Index(name = "idx_verification_reference", columnList = "reference_id") // Referans ile arama için
 })
 @Getter
 @Setter
@@ -24,6 +25,9 @@ public class VerificationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Column(name = "reference_id", nullable = false, unique = true)
+    private String referenceId;
 
     @Column(name = "user_id", nullable = false)
     private Long userId;

@@ -13,4 +13,5 @@ public class VerificationRequest {
     private VerificationType type;
     private NotificationChannel channel;
     private VerificationPurpose purpose;
+    private String referenceId;
 }
