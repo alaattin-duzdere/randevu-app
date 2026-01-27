@@ -13,7 +13,6 @@ import java.util.Set;
 @Order(2)
 public class PurposeInitiationFilter implements IVerificationFilter {
 
-    // Kullanıcının manuel olarak başlatabileceği amaçlar
     private static final Set<VerificationPurpose> ALLOWED_INITIATE_PURPOSES = Set.of(
             VerificationPurpose.REGISTRATION,
             VerificationPurpose.EMAIL_VERIFICATION,

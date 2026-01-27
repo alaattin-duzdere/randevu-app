@@ -35,7 +35,7 @@ public enum ApiStatus {
     ERROR_EMAIL_SERVICE_FAILURE(HttpStatus.BAD_GATEWAY, "E502-MAIL", "Failed to send email."),
 
     // Authentication & Authorization Errors
-    ERROR_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "E401-CRED", "Invalid email or password."),
+    ERROR_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "E401-CRED", "Invalid email/phone or password."),
     ERROR_USER_NOT_VERIFIED(HttpStatus.FORBIDDEN, "E403-VER", "User account is not verified."),
 
     // Token Errors

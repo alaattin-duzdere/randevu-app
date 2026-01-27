@@ -2,11 +2,9 @@ package RandevuApp.domain.user.model;
 
 import RandevuApp.commons.BaseEntity;
 import RandevuApp.domain.notification.model.UserNotificationPreference;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.Instant;
@@ -47,10 +45,12 @@ public class User extends BaseEntity {
     private String lastName;
 
     @Enumerated(EnumType.STRING)
-    private Gender gender;
+    @Nullable
+    @Builder.Default
+    private Gender gender = Gender.NOT_SPECIFIED;
 
-    @NotBlank
     @Size(max = 255)
+    @Nullable
     private String address;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -68,7 +68,7 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserStatus status = UserStatus.ACTIVE;
+    private UserStatus status = UserStatus.PENDING;
 
     private Instant phoneVerifiedAt;
 
