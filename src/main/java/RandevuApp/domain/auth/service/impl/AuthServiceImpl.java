@@ -7,10 +7,10 @@ import RandevuApp.domain.auth.repository.RefreshTokenRepository;
 import RandevuApp.domain.auth.service.IAuthService;
 import RandevuApp.domain.auth.service.TokenBlacklistService;
 import RandevuApp.domain.notification.model.NotificationChannel;
-import RandevuApp.domain.user.model.Role;
 import RandevuApp.domain.user.model.User;
 import RandevuApp.domain.user.model.UserStatus;
-import RandevuApp.domain.user.repository.UserRepository;
+import RandevuApp.domain.user.model.VerificationStatus;
+import RandevuApp.domain.user.service.IUserDomainService;
 import RandevuApp.domain.verification.model.VerificationPurpose;
 import RandevuApp.domain.verification.model.VerificationRequest;
 import RandevuApp.domain.verification.model.VerificationType;
@@ -19,7 +19,7 @@ import RandevuApp.exceptions.auth.ExpiredTokenException;
 import RandevuApp.exceptions.auth.InvalidCredentialsException;
 import RandevuApp.exceptions.auth.InvalidTokenException;
 import RandevuApp.exceptions.auth.UserBannedException;
-import RandevuApp.exceptions.client.ConflictException;
+import RandevuApp.exceptions.client.InvalidInputException;
 import com.authcore.service.JwtService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,14 +39,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements IAuthService {
 
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$"
-    );
-    private static final Pattern PHONE_PATTERN = Pattern.compile(
-            "^\\+?[0-9. ()-]{7,25}$"
-    );
-
-    private final UserRepository userRepository;
+    private final IUserDomainService userDomainService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final VerificationService verificationService;
     private final PasswordEncoder passwordEncoder;
@@ -68,41 +60,21 @@ public class AuthServiceImpl implements IAuthService {
     public void register(RegisterRequest request) {
         log.info("Registering new user with email: {}", request.getEmail());
 
-        // 1. Check if email or phone already exists
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new ConflictException("Email already in use");
-        }
-        if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
-            throw new ConflictException("Phone number already in use");
-        }
+        // 1. Create and save User via UserDomainService
+        User user = userDomainService.createNewUser(request, passwordEncoder.encode(request.getPassword()));
+        user = userDomainService.saveUser(user);
 
-        // 2. Create User
-        User user = User.builder()
-                .email(request.getEmail())
-                .phoneNumber(request.getPhoneNumber())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .address(request.getAddress())
-                .gender(request.getGender())
-                .roles(Set.of(Role.USER)) // Default role
-                .status(UserStatus.PENDING) // Initial status
-                .build();
-
-        userRepository.save(user);
-
-        // 3. Start Verification (SMS)
-        // Maybe verification starting could be in frontend
+        // 2. Start Verification (SMS)
         VerificationRequest verificationRequest = new VerificationRequest(
                 user.getId(),
                 VerificationType.CODE,
                 NotificationChannel.SMS,
-                VerificationPurpose.REGISTRATION,
+                VerificationPurpose.PHONE_VERIFICATION,
                 null
         );
 
         verificationService.startVerification(verificationRequest);
-        
+
         log.info("User registered successfully. Verification SMS sent to: {}", request.getPhoneNumber());
     }
 
@@ -111,7 +83,7 @@ public class AuthServiceImpl implements IAuthService {
         log.info("Login request received for identifier: {}", loginRequest.getIdentifier());
 
         // 1. Find User (Email or Phone)
-        User user = findUserByIdentifier(loginRequest.getIdentifier());
+        User user = userDomainService.findUserByIdentifier(loginRequest.getIdentifier());
 
         // 2. Check Password
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
@@ -125,7 +97,7 @@ public class AuthServiceImpl implements IAuthService {
 
         // 4. Generate Tokens
         SecurityUser securityUser = new SecurityUser(user);
-        
+
         String accessToken = jwtService.generateToken(generateUserClaims(securityUser), securityUser);
         RefreshToken savedRefreshToken = refreshTokenRepository.save(createRefreshToken(user));
 
@@ -158,13 +130,13 @@ public class AuthServiceImpl implements IAuthService {
         // Generate new access token
         User user = optRefreshToken.get().getUser();
         SecurityUser securityUser = new SecurityUser(user);
-        
+
         String accessToken = jwtService.generateToken(generateUserClaims(securityUser), securityUser);
 
         // Delete old refresh token and create a new one
         refreshTokenRepository.delete(optRefreshToken.get());
         RefreshToken newRefreshToken = refreshTokenRepository.save(createRefreshToken(user));
-        
+
         return RefreshResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(newRefreshToken.getRefreshToken())
@@ -221,28 +193,6 @@ public class AuthServiceImpl implements IAuthService {
                 .collect(Collectors.toList()));
 
         return claims;
-    }
-
-    private User findUserByIdentifier(String identifier) {
-        if (isValidEmail(identifier)) {
-            return userRepository.findByEmail(identifier)
-                    .orElseThrow(() -> new InvalidCredentialsException("Invalid email/phone or password"));
-        } else if (isValidPhoneNumber(identifier)) {
-            return userRepository.findByPhoneNumber(identifier)
-                    .orElseThrow(() -> new InvalidCredentialsException("Invalid email/phone or password"));
-        } else {
-            throw new InvalidCredentialsException("Invalid email/phone format");
-        }
-    }
-
-    private boolean isValidEmail(String email) {
-        if (email == null) return false;
-        return EMAIL_PATTERN.matcher(email).matches();
-    }
-
-    private boolean isValidPhoneNumber(String phone) {
-        if (phone == null) return false;
-        return PHONE_PATTERN.matcher(phone).matches();
     }
 
     private RefreshToken createRefreshToken(User user) {
