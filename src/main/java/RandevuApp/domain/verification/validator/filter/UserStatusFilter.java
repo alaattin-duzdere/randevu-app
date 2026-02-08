@@ -26,11 +26,6 @@ public class UserStatusFilter implements IVerificationFilter {
         if (purpose == null) return;
 
         switch (purpose) {
-            case REGISTRATION:
-                if (user.getStatus() == UserStatus.ACTIVE) {
-                    throw new VerificationPurposeException("User is already active. Cannot start registration verification.");
-                }
-                break;
             case PASSWORD_RESET:
                 if (user.getStatus() != UserStatus.ACTIVE) {
                     throw new VerificationPurposeException("User is not active. Cannot start password reset.");

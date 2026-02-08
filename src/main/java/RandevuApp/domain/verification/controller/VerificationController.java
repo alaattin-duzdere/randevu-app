@@ -1,10 +1,13 @@
 package RandevuApp.domain.verification.controller;
 
+import RandevuApp.domain.user.model.User;
+import RandevuApp.domain.user.service.IUserDomainService;
 import RandevuApp.domain.verification.dto.CodeConfirmRequest;
 import RandevuApp.domain.verification.model.VerificationPurpose;
 import RandevuApp.domain.verification.model.VerificationRequest;
 import RandevuApp.domain.verification.model.VerificationType;
 import RandevuApp.domain.verification.service.VerificationService;
+import RandevuApp.domain.verification.validator.VerificationFilterChainManager;
 import RandevuApp.exceptions.verification.VerificationPurposeException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +20,18 @@ public class VerificationController {
 
     private final VerificationService verificationService;
 
-    // A. DOĞRULAMA BAŞLATMA (Herkes için ortak)
-    @PostMapping("/initiate")
-    public ResponseEntity<Void> initiate(@RequestBody VerificationRequest request) {
-        verificationService.startVerification(request);
-        return ResponseEntity.ok().build();
-    }
+//    // A. DOĞRULAMA BAŞLATMA (Herkes için ortak)
+//    @PostMapping("/initiate")
+//    public ResponseEntity<Void> initiate(@RequestBody VerificationRequest request) {
+//        // Find user
+//        User user = userDomainService.findUserById(request.getUserId());
+//
+//        // Validate request
+//        filterChainManager.validateForController(request, user);
+//
+//        verificationService.startVerification(request);
+//        return ResponseEntity.ok().build();
+//    }
 
     // B. KOD DOĞRULAMA (Kullanıcı formu doldurur, JSON atar)
     @PostMapping("/confirm-code")

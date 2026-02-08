@@ -61,6 +61,11 @@ public class VerificationService {
 
     @Transactional
     public void startVerification(VerificationRequest request) {
+        startVerification(request, null);
+    }
+
+    @Transactional
+    public void startVerification(VerificationRequest request, String customRecipient) {
         // Find user
         User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new ResourceNotFoundException("userId", "id", request.getUserId()));
 
@@ -96,7 +101,9 @@ public class VerificationService {
 
         // Prepare notification
         NotificationPayload payload = strategy.prepareNotification(request.getUserId(), rawSecret, request.getChannel(), purpose);
-        String recipient = resolveRecipient(request.getChannel(), user);
+        
+        // Use custom recipient if provided, otherwise resolve from user
+        String recipient = customRecipient != null ? customRecipient : resolveRecipient(request.getChannel(), user);
 
         // Determine category based on verification type
         NotificationCategory category = (request.getType() == VerificationType.LINK) 
