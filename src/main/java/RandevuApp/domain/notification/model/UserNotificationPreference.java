@@ -1,6 +1,6 @@
 package RandevuApp.domain.notification.model;
 
-import RandevuApp.commons.BaseEntity;
+import RandevuApp.commons.model.BaseEntity;
 import RandevuApp.domain.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;

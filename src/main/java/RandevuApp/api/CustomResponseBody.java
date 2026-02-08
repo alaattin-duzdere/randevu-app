@@ -30,6 +30,10 @@ public class CustomResponseBody<T> {
         return success(ApiStatus.SUCCESS_OK, data, message);
     }
 
+    public static CustomResponseBody<Void> ok(String message) {
+        return new CustomResponseBody<>(ApiStatus.SUCCESS_OK, message, null);
+    }
+
     public static <T> CustomResponseBody<T> failure(ApiStatus status, String message) {
         return new CustomResponseBody<>(status, message, null);
     }

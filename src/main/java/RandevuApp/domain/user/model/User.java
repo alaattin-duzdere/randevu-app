@@ -1,6 +1,6 @@
 package RandevuApp.domain.user.model;
 
-import RandevuApp.commons.BaseEntity;
+import RandevuApp.commons.model.BaseEntity;
 import RandevuApp.domain.notification.model.UserNotificationPreference;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;

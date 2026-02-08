@@ -1,4 +1,4 @@
-package RandevuApp.commons;
+package RandevuApp.commons.model;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
