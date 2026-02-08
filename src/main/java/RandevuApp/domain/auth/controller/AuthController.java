@@ -52,4 +52,10 @@ public class AuthController {
         CustomResponseBody<Object> body = CustomResponseBody.failure(ApiStatus.ERROR_INVALID_INPUT, "No token found to invalidate");
         return new ResponseEntity<>(body,HttpStatusCode.valueOf(body.getHttpStatus()));
     }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<CustomResponseBody<Void>> resendVerification(@RequestParam String identifier) {
+        authService.resendVerification(identifier);
+        return ResponseEntity.ok(CustomResponseBody.ok("Verification code resent successfully"));
+    }
 }

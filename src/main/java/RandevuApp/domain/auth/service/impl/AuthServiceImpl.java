@@ -60,6 +60,9 @@ public class AuthServiceImpl implements IAuthService {
     @Value("${auth-core.expiration-ms}")
     private Long accessTokenDurationMs;
 
+    @Value("${app.security.phone-verification-validity-days}")
+    private long phoneVerificationValidityDays;
+
     @Override
     @Transactional
     public void register(RegisterRequest request) {
@@ -181,6 +184,33 @@ public class AuthServiceImpl implements IAuthService {
         blacklistService.blacklistToken(jwtService.extractClaim(token,Claims::getId), expirationMillis);
 
         return "User logout successful";
+    }
+
+    @Override
+    @Transactional
+    public void resendVerification(String identifier) {
+        log.info("Resend verification request received for: {}", identifier);
+
+        User user = userDomainService.findUserByIdentifier(identifier);
+
+        if (user.getStatus() != UserStatus.PENDING) {
+            throw new InvalidInputException("User is already active or banned. Cannot resend registration verification.");
+        }
+
+        if(user.getPhoneVerificationStatus(phoneVerificationValidityDays) != VerificationStatus.NOT_VERIFIED){
+            throw new InvalidInputException("User phone is already verified.");        }
+
+        // Start Verification (SMS)
+        VerificationRequest verificationRequest = new VerificationRequest(
+                user.getId(),
+                VerificationType.CODE,
+                NotificationChannel.SMS,
+                VerificationPurpose.PHONE_VERIFICATION,
+                null
+        );
+
+        verificationService.startVerification(verificationRequest);
+        log.info("Verification SMS resent to: {}", user.getPhoneNumber());
     }
 
     private Map<String, Object> generateUserClaims(SecurityUser securityUser) {

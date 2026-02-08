@@ -1,7 +1,6 @@
 package RandevuApp.domain.auth.service;
 
 import RandevuApp.domain.auth.dto.*;
-import jakarta.validation.Valid;
 
 public interface IAuthService {
 
@@ -12,4 +11,6 @@ public interface IAuthService {
     RefreshResponse refresh(RefreshRequest refreshRequest);
 
     String logout(String token);
+
+    void resendVerification(String identifier);
 }
