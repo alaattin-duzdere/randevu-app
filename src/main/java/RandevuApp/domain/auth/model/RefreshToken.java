@@ -1,6 +1,6 @@
 package RandevuApp.domain.auth.model;
 
-import RandevuApp.commons.BaseEntity;
+import RandevuApp.commons.model.BaseEntity;
 import RandevuApp.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

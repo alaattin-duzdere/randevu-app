@@ -7,4 +7,8 @@ public class PasswordMismatchException extends BaseApiException {
     public PasswordMismatchException() {
         super(ApiStatus.ERROR_PASSWORD_MISMATCH);
     }
+
+    public PasswordMismatchException(String message) {
+        super(ApiStatus.ERROR_PASSWORD_MISMATCH, message);
+    }
 }
