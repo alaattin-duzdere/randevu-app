@@ -1,6 +1,10 @@
 package RandevuApp.domain.user.service.impl;
 
 import RandevuApp.commons.validator.ContactValidator;
+import RandevuApp.domain.appointment.model.Appointment;
+import RandevuApp.domain.appointment.model.AppointmentStatus;
+import RandevuApp.domain.appointment.repository.AppointmentRepository;
+import RandevuApp.domain.business.repository.BusinessRepository;
 import RandevuApp.domain.notification.model.NotificationChannel;
 import RandevuApp.domain.user.dto.ChangePasswordRequest;
 import RandevuApp.domain.user.dto.ContactChangeInitiateRequest;
@@ -22,6 +26,7 @@ import RandevuApp.exceptions.client.ConflictException;
 import RandevuApp.exceptions.client.InvalidInputException;
 import RandevuApp.exceptions.client.PasswordMismatchException;
 import RandevuApp.exceptions.client.ResourceNotFoundException;
+import RandevuApp.exceptions.client.ObjectDeletionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -45,14 +51,18 @@ public class UserServiceImpl implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final VerificationService verificationService;
     private final UserChangeRequestRepository userChangeRequestRepository ;
+    private final BusinessRepository businessRepository;
+    private final AppointmentRepository appointmentRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public UserResponse getUserById(Long userId) {
         User user = userDomainService.findUserById(userId);
         return userMapper.userToUserResponse(user);
     }
 
     @Override
+    @Transactional
     public UserResponse updateCurrentUserProfile(Long userId,UpdateUserRequest request) {
         User user = userDomainService.findUserById(userId);
 
@@ -66,6 +76,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public void changePassword(Long userId, ChangePasswordRequest request) {
         User user = userDomainService.findUserById(userId);
 
@@ -227,17 +238,35 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long userId) {
-        // TODO: Implement logic
+        User user = userDomainService.findUserById(userId);
+
+        // Business check
+        if (businessRepository.existsByOwner(user)){
+            throw new ObjectDeletionException("Cannot delete user with associated business.");
+        }
+
+        // Appointment check
+        List<Appointment> appointments = appointmentRepository.findAllByUserId(userId);
+        appointments.forEach(appointment -> {
+            if (appointment.getAppointmentStatus()== AppointmentStatus.CREATED || appointment.getAppointmentStatus()== AppointmentStatus.CONFIRMED){
+                throw new ObjectDeletionException("Cannot delete user with associated business.");
+            }
+        });
+
+        userDomainService.deleteUser(user);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<UserResponse> getAllUsers(Pageable pageable, String search) {
         Page<User> users = userDomainService.getAllUsers(pageable, search);
         return users.map(userMapper::userToUserResponse);
     }
 
     @Override
+    @Transactional
     public void changeUserStatus(Long id, UserStatus status) {
         User user = userDomainService.findUserById(id);
         user.setStatus(status);
@@ -245,6 +274,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public UserResponse updateUserRoles(Long id, Set<Role> roles) {
         User user = userDomainService.findUserById(id);
         user.setRoles(roles);

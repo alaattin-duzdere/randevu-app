@@ -2,6 +2,7 @@ package RandevuApp.domain.user.service.impl;
 
 import RandevuApp.commons.validator.ContactValidator;
 import RandevuApp.domain.auth.dto.RegisterRequest;
+import RandevuApp.domain.auth.repository.RefreshTokenRepository;
 import RandevuApp.domain.user.model.Role;
 import RandevuApp.domain.user.model.User;
 import RandevuApp.domain.user.model.UserStatus;
@@ -12,6 +13,7 @@ import RandevuApp.exceptions.client.ConflictException;
 import RandevuApp.exceptions.client.InvalidInputException;
 import RandevuApp.exceptions.client.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -21,11 +23,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserDomainServiceImpl implements IUserDomainService {
 
     private final UserRepository userRepository;
     private final ContactValidator contactValidator;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public User findUserByIdentifier(String identifier) {
@@ -91,5 +96,26 @@ public class UserDomainServiceImpl implements IUserDomainService {
     @Override
     public boolean existsByPhoneNumber(String phoneNumber) {
         return userRepository.existsByPhoneNumber(phoneNumber);
+    }
+
+    @Transactional
+    @Override
+    public void deleteUser(User user) {
+        refreshTokenRepository.deleteByUserId(user.getId());
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+
+        user.setEmail("deleted_" + timestamp + "_" + user.getEmail());
+        user.setPhoneNumber("deleted_" + timestamp + "_" + user.getPhoneNumber());
+
+        user.setFirstName("Deleted User");
+        user.setLastName(timestamp);
+        user.setPassword("password_for_deleted_user");
+        user.setAddress(null);
+        user.setDeleted(true);
+
+        userRepository.save(user);
+
+        log.info("Kullanıcı (ID: {}) anonimleştirilerek soft-delete yapıldı.", user.getId() );
     }
 }

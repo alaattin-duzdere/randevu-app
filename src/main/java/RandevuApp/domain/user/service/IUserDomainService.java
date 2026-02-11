@@ -19,4 +19,6 @@ public interface IUserDomainService {
     boolean existsByEmail(String email);
 
     boolean existsByPhoneNumber(String phoneNumber);
+
+    void deleteUser(User user);
 }

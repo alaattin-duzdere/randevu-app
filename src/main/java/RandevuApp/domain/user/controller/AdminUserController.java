@@ -51,4 +51,10 @@ public class AdminUserController {
         UserResponse user = userService.updateUserRoles(id, roles);
         return ResponseEntity.ok(CustomResponseBody.ok(user, "User roles updated"));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<CustomResponseBody<Void>> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok(CustomResponseBody.ok(null, "User deleted successfully"));
+    }
 }
