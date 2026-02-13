@@ -1,7 +1,6 @@
 package RandevuApp.domain.user.service.impl;
 
 import RandevuApp.commons.validator.ContactValidator;
-import RandevuApp.domain.appointment.model.Appointment;
 import RandevuApp.domain.appointment.model.AppointmentStatus;
 import RandevuApp.domain.appointment.repository.AppointmentRepository;
 import RandevuApp.domain.business.repository.BusinessRepository;
@@ -243,17 +242,23 @@ public class UserServiceImpl implements IUserService {
         User user = userDomainService.findUserById(userId);
 
         // Business check
-        if (businessRepository.existsByOwner(user)){
+        if (businessRepository.existsByOwnerId(userId)){
             throw new ObjectDeletionException("Cannot delete user with associated business.");
         }
 
         // Appointment check
-        List<Appointment> appointments = appointmentRepository.findAllByUserId(userId);
-        appointments.forEach(appointment -> {
-            if (appointment.getAppointmentStatus()== AppointmentStatus.CREATED || appointment.getAppointmentStatus()== AppointmentStatus.CONFIRMED){
-                throw new ObjectDeletionException("Cannot delete user with associated business.");
-            }
-        });
+        List<AppointmentStatus> activeStatuses = List.of(
+                AppointmentStatus.CREATED,
+                AppointmentStatus.CONFIRMED
+        );
+
+        boolean hasActiveAppointments = appointmentRepository.existsByUserIdAndAppointmentStatusIn(
+                userId,
+                activeStatuses);
+
+        if (hasActiveAppointments) {
+            throw new ObjectDeletionException("Cannot delete user with associated active appointments.");
+        }
 
         userDomainService.deleteUser(user);
     }
