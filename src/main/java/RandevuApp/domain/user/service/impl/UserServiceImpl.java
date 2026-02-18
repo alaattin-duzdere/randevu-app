@@ -5,10 +5,7 @@ import RandevuApp.domain.appointment.model.AppointmentStatus;
 import RandevuApp.domain.appointment.repository.AppointmentRepository;
 import RandevuApp.domain.business.repository.BusinessRepository;
 import RandevuApp.domain.notification.model.NotificationChannel;
-import RandevuApp.domain.user.dto.ChangePasswordRequest;
-import RandevuApp.domain.user.dto.ContactChangeInitiateRequest;
-import RandevuApp.domain.user.dto.UpdateUserRequest;
-import RandevuApp.domain.user.dto.UserResponse;
+import RandevuApp.domain.user.dto.*;
 import RandevuApp.domain.user.mapper.UserMapper;
 import RandevuApp.domain.user.model.Role;
 import RandevuApp.domain.user.model.User;
@@ -93,8 +90,8 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional
-    public void initiatePhoneChange(Long userId, ContactChangeInitiateRequest request) {
-        String newPhoneNumber = request.getNewValue();
+    public void initiatePhoneChange(Long userId, PhoneChangeInitiateRequest request) {
+        String newPhoneNumber = request.getNewPhoneNumber();
         User user = userDomainService.findUserById(userId);
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())){
@@ -155,8 +152,8 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional
-    public void initiateEmailChange(Long userId, ContactChangeInitiateRequest request) {
-        String newEmail = request.getNewValue();
+    public void initiateEmailChange(Long userId, EmailChangeInitiateRequest request) {
+        String newEmail = request.getNewEmail();
         User user = userDomainService.findUserById(userId);
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())){

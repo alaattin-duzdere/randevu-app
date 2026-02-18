@@ -1,9 +1,6 @@
 package RandevuApp.domain.user.service;
 
-import RandevuApp.domain.user.dto.ChangePasswordRequest;
-import RandevuApp.domain.user.dto.ContactChangeInitiateRequest;
-import RandevuApp.domain.user.dto.UpdateUserRequest;
-import RandevuApp.domain.user.dto.UserResponse;
+import RandevuApp.domain.user.dto.*;
 import RandevuApp.domain.user.model.Role;
 import RandevuApp.domain.user.model.UserStatus;
 import org.springframework.data.domain.Page;
@@ -17,11 +14,11 @@ public interface IUserService {
 
     void changePassword(Long userId, ChangePasswordRequest request);
 
-    void initiatePhoneChange(Long userId, ContactChangeInitiateRequest request);
+    void initiatePhoneChange(Long userId, PhoneChangeInitiateRequest request);
 
     void changePhone(Long userId);
 
-    void initiateEmailChange(Long userId, ContactChangeInitiateRequest request);
+    void initiateEmailChange(Long userId, EmailChangeInitiateRequest request);
 
     void changeEmail(Long userId);
 

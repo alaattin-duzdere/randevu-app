@@ -1,10 +1,7 @@
 package RandevuApp.domain.user.controller;
 
 import RandevuApp.api.CustomResponseBody;
-import RandevuApp.domain.user.dto.ChangePasswordRequest;
-import RandevuApp.domain.user.dto.ContactChangeInitiateRequest;
-import RandevuApp.domain.user.dto.UpdateUserRequest;
-import RandevuApp.domain.user.dto.UserResponse;
+import RandevuApp.domain.user.dto.*;
 import RandevuApp.domain.user.service.IUserService;
 import RandevuApp.utils.SecurityUtils;
 import jakarta.validation.Valid;
@@ -41,13 +38,13 @@ public class UserController {
     }
 
     @PostMapping("/phone/change-request")
-    public ResponseEntity<Void> initiatePhoneChange(@Valid @RequestBody ContactChangeInitiateRequest request) {
+    public ResponseEntity<Void> initiatePhoneChange(@Valid @RequestBody PhoneChangeInitiateRequest request) {
         userService.initiatePhoneChange(SecurityUtils.getCurrentUserId(), request);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/email/change-request")
-    public ResponseEntity<Void> initiateEmailChange(@Valid @RequestBody ContactChangeInitiateRequest request) {
+    public ResponseEntity<Void> initiateEmailChange(@Valid @RequestBody EmailChangeInitiateRequest request) {
         userService.initiateEmailChange(SecurityUtils.getCurrentUserId(), request);
         return ResponseEntity.noContent().build();
     }
