@@ -20,8 +20,6 @@ public class BusinessSettings {
 
     private String closingTime;
 
-    private String timeZone;
-
     // Business ile geri ilişki (Opsiyonel ama önerilir)
     @OneToOne(mappedBy = "businessSettings")
     private Business business;
