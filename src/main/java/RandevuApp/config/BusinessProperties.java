@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.LocalTime;
+
 @Getter
 @Setter
 @Configuration
@@ -18,7 +20,7 @@ public class BusinessProperties {
     @Setter
     public static class Defaults {
         private int slotDurationTime = 30;
-        private String openingTime = "09:00";
-        private String closingTime = "18:00";
+        private LocalTime openingTime = LocalTime.parse("09:00");
+        private LocalTime closingTime = LocalTime.parse("18:00");
     }
 }

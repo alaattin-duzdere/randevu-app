@@ -3,7 +3,7 @@ package RandevuApp.domain.business.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Fetch;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "business_settings")
@@ -16,9 +16,9 @@ public class BusinessSettings {
 
     private Integer slotDurationTime;
 
-    private String openingTime;
+    private LocalTime openingTime;
 
-    private String closingTime;
+    private LocalTime closingTime;
 
     // Business ile geri ilişki (Opsiyonel ama önerilir)
     @OneToOne(mappedBy = "businessSettings")

@@ -51,10 +51,12 @@ public class BusinessSettingsServiceImpl implements IBusinessSettingsService {
         if (request.getSlotDurationTime() != null) {
             settings.setSlotDurationTime(request.getSlotDurationTime());
         }
-        if (StringUtils.hasText(request.getOpeningTime())) {
+
+        if (request.getOpeningTime() != null) {
             settings.setOpeningTime(request.getOpeningTime());
         }
-        if (StringUtils.hasText(request.getClosingTime())) {
+
+        if (request.getClosingTime() != null) {
             settings.setClosingTime(request.getClosingTime());
         }
 

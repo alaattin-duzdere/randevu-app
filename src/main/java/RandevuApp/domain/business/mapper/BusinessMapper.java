@@ -40,8 +40,6 @@ public class BusinessMapper {
         BusinessSettingsResponse response = new BusinessSettingsResponse();
         BeanUtils.copyProperties(businessSettings, response);
 
-        log.warn("Business Settings: " + businessSettings.getBusiness());
-
         response.setBusinessId(businessSettings.getBusiness().getId());
         return response;
     }

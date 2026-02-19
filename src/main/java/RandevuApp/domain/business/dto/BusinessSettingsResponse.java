@@ -3,11 +3,13 @@ package RandevuApp.domain.business.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalTime;
+
 @Getter
 @Setter
 public class BusinessSettingsResponse {
     private Integer slotDurationTime;
-    private String openingTime;
-    private String closingTime;
+    private LocalTime openingTime;
+    private LocalTime closingTime;
     private Long businessId;
 }
