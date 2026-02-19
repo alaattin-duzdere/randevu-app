@@ -15,7 +15,10 @@ import RandevuApp.domain.business.service.IBusinessDomainService;
 import RandevuApp.domain.business.service.IBusinessService;
 import RandevuApp.domain.business.service.IBusinessSettingsService;
 import RandevuApp.domain.user.model.User;
+import RandevuApp.domain.user.model.UserStatus;
 import RandevuApp.domain.user.service.IUserDomainService;
+import RandevuApp.exceptions.auth.UserBannedException;
+import RandevuApp.exceptions.auth.UserNotActiveException;
 import RandevuApp.exceptions.client.ObjectDeletionException;
 import RandevuApp.exceptions.client.ConflictException;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +45,14 @@ public class BusinessServiceImp implements IBusinessService {
     @Transactional
     public BusinessResponse createBusiness(CreateBusinessRequest request, Long ownerId) {
         User owner = userDomainService.findUserById(ownerId);
+
+        // User stat check
+        if (owner.getStatus() == UserStatus.BANNED) {
+            throw new UserBannedException("Your account has been banned. You cannot create a business.");
+        }
+        if (owner.getStatus() != UserStatus.ACTIVE) {
+            throw new UserNotActiveException("Your account is not active. Please verify your account to create a business.");
+        }
 
         // Slug check
         if (businessDomainService.existsBySlug(request.getSlug())) {
