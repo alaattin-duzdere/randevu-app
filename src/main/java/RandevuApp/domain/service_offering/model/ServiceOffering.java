@@ -18,12 +18,14 @@ import java.util.List;
 @Builder
 public class ServiceOffering extends BaseEntity {
 
-
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "duration_time", nullable = false)
-    private Integer duration;
+    @Column(length = 500)
+    private String description;
+
+    @Column(name = "duration_in_minutes", nullable = false)
+    private Integer durationInMinutes;
 
     @Column(nullable = false)
     private BigDecimal price;
