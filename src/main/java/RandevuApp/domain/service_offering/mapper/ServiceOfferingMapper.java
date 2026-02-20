@@ -16,7 +16,6 @@ public class ServiceOfferingMapper {
                 .durationInMinutes(serviceOffering.getDurationInMinutes())
                 .price(serviceOffering.getPrice())
                 .active(serviceOffering.isActive())
-                .createdAt(serviceOffering.getCreatedAt())
                 .build();
     }
 }
