@@ -1,6 +1,5 @@
 package RandevuApp.domain.user.service.impl;
 
-import RandevuApp.commons.validator.ContactValidator;
 import RandevuApp.domain.appointment.model.AppointmentStatus;
 import RandevuApp.domain.appointment.repository.AppointmentRepository;
 import RandevuApp.domain.business.repository.BusinessRepository;
@@ -42,7 +41,6 @@ import java.util.Set;
 public class UserServiceImpl implements IUserService {
 
     private final IUserDomainService userDomainService;
-    private final ContactValidator contactValidator;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final VerificationService verificationService;
@@ -96,10 +94,6 @@ public class UserServiceImpl implements IUserService {
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())){
             throw new PasswordMismatchException("Incorrect password");
-        }
-
-        if (!contactValidator.isValidPhoneNumber(newPhoneNumber)){
-            throw new InvalidInputException("Invalid phone number format");
         }
 
         if (userDomainService.existsByPhoneNumber(newPhoneNumber)){
@@ -158,10 +152,6 @@ public class UserServiceImpl implements IUserService {
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())){
             throw new PasswordMismatchException("Incorrect password");
-        }
-
-        if (!contactValidator.isValidEmail(newEmail)){
-            throw new InvalidInputException("Invalid email format");
         }
 
         if (userDomainService.existsByEmail(newEmail)){

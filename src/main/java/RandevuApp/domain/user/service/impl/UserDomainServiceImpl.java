@@ -1,6 +1,6 @@
 package RandevuApp.domain.user.service.impl;
 
-import RandevuApp.commons.validator.ContactValidator;
+import RandevuApp.commons.util.ContactFormatUtil;
 import RandevuApp.domain.auth.dto.RegisterRequest;
 import RandevuApp.domain.auth.repository.RefreshTokenRepository;
 import RandevuApp.domain.user.model.Role;
@@ -29,17 +29,18 @@ import java.util.Set;
 public class UserDomainServiceImpl implements IUserDomainService {
 
     private final UserRepository userRepository;
-    private final ContactValidator contactValidator;
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public User findUserByIdentifier(String identifier) {
-        if (contactValidator.isValidEmail(identifier)) {
+        if (ContactFormatUtil.isEmail(identifier)) {
             return userRepository.findByEmail(identifier)
                     .orElseThrow(() -> new ResourceNotFoundException("User", "email", identifier));
-        } else if (contactValidator.isValidPhoneNumber(identifier)) {
+
+        } else if (ContactFormatUtil.isPhone(identifier)) {
             return userRepository.findByPhoneNumber(identifier)
                     .orElseThrow(() -> new ResourceNotFoundException("User", "phone", identifier));
+
         } else {
             throw new InvalidInputException("Invalid email/phone format");
         }

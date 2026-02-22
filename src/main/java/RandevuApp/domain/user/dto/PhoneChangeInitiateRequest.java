@@ -1,5 +1,6 @@
 package RandevuApp.domain.user.dto;
 
+import RandevuApp.commons.annotation.ValidPhone;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
@@ -10,6 +11,6 @@ public class PhoneChangeInitiateRequest {
     private String password;
 
     @NotBlank(message = "New phone number is required")
-    @Pattern(regexp = "^\\+?[0-9. ()-]{7,25}$", message = "Invalid phone number format")
+    @ValidPhone
     private String newPhoneNumber;
 }
