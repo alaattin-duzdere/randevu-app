@@ -8,7 +8,7 @@ import lombok.*;
 import java.util.List;
 
 @Entity
-@Table(name = "staff")
+@Table(name = "staffs")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,28 +16,35 @@ import java.util.List;
 @Builder
 public class Staff extends BaseEntity {
 
-    @Column(name = "staff_name", nullable = false)
+    @Column(name = "staff_name", nullable = false, length = 100)
     private String name;
 
-    private String photo; // Fotoğraf URL'i veya dosya yolu
+    @Column(length = 100)
+    private String title;
+
+    @Column(length = 100)
+    private String email;
+
+    @Column(length = 20)
+    private String phone;
+
+    @Column(name = "color_code", length = 7)
+    private String colorCode;
+
+    private String photo;
 
     @Column(nullable = false)
     private boolean active = true;
 
-    // --- İLİŞKİLER ---
+    // --- RELATIONS ---
 
-    // 1. Hangi işletmeye ait?
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "business_id", nullable = false)
     private Business business;
 
-    // 2. Personelin İzinleri (TimeOff)
     @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TimeOff> timeOffs;
 
-    // 3. Verdiği Hizmetler (StaffService tablosu üzerinden)
-    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL, fetch = FetchType.LAZY,orphanRemoval = true)
     private List<StaffService> staffServices;
-
-    // (İleride Appointment eklendiğinde buraya @OneToMany eklenecek)
 }

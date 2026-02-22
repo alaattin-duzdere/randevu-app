@@ -1,7 +1,5 @@
 package RandevuApp.domain.business.service.impl;
 
-import RandevuApp.domain.appointment.model.AppointmentStatus;
-import RandevuApp.domain.appointment.repository.AppointmentRepository;
 import RandevuApp.domain.business.dto.CreateBusinessRequest;
 import RandevuApp.domain.business.dto.UpdateBusinessRequest;
 import RandevuApp.domain.business.model.Business;
@@ -9,7 +7,7 @@ import RandevuApp.domain.business.model.BusinessSettings;
 import RandevuApp.domain.business.repository.BusinessRepository;
 import RandevuApp.domain.business.service.IBusinessDomainService;
 import RandevuApp.domain.service_offering.service.IServiceOfferingDomainService;
-import RandevuApp.domain.staff.service.IStaffService;
+import RandevuApp.domain.staff.service.IStaffDomainService;
 import RandevuApp.domain.user.model.User;
 import RandevuApp.exceptions.client.OwnerMismatchException;
 import RandevuApp.exceptions.client.ResourceNotFoundException;
@@ -30,7 +28,7 @@ import java.util.List;
 public class BusinessDomainService implements IBusinessDomainService {
 
     private final BusinessRepository businessRepository;
-    private final IStaffService staffService;
+    private final IStaffDomainService staffDomainService;
     private final IServiceOfferingDomainService serviceOfferingDomainService;
 
     @Override
@@ -122,7 +120,7 @@ public class BusinessDomainService implements IBusinessDomainService {
 
         // delete associated offerings and staffs
         serviceOfferingDomainService.deleteAllByBusinessId(business.getId());
-        staffService.deleteAllByBusinessId(business.getId());
+        staffDomainService.deleteAllByBusinessId(business.getId());
 
         String timestamp = String.valueOf(System.currentTimeMillis());
         business.setSlug(business.getSlug() + "-deleted-" + timestamp);
