@@ -11,7 +11,6 @@ import RandevuApp.domain.business.service.IBusinessSettingsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +26,6 @@ public class BusinessSettingsServiceImpl implements IBusinessSettingsService {
 
         BusinessSettings defaultSettings = new BusinessSettings();
         defaultSettings.setSlotDurationTime(defaults.getSlotDurationTime());
-        defaultSettings.setOpeningTime(defaults.getOpeningTime());
-        defaultSettings.setClosingTime(defaults.getClosingTime());
 
         return defaultSettings;
     }
@@ -44,20 +41,13 @@ public class BusinessSettingsServiceImpl implements IBusinessSettingsService {
     }
 
     @Override
+    @Transactional
     public BusinessSettingsResponse updateSettings(Long businessId, UpdateBusinessSettingsRequest request) {
         Business business = businessDomainService.getById(businessId);
         BusinessSettings settings = business.getBusinessSettings();
 
         if (request.getSlotDurationTime() != null) {
             settings.setSlotDurationTime(request.getSlotDurationTime());
-        }
-
-        if (request.getOpeningTime() != null) {
-            settings.setOpeningTime(request.getOpeningTime());
-        }
-
-        if (request.getClosingTime() != null) {
-            settings.setClosingTime(request.getClosingTime());
         }
 
         businessDomainService.save(business);

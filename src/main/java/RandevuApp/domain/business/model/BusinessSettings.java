@@ -16,10 +16,6 @@ public class BusinessSettings {
 
     private Integer slotDurationTime;
 
-    private LocalTime openingTime;
-
-    private LocalTime closingTime;
-
     // Business ile geri ilişki (Opsiyonel ama önerilir)
     @OneToOne(mappedBy = "businessSettings")
     private Business business;

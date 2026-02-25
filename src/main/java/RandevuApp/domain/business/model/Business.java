@@ -7,6 +7,7 @@ import RandevuApp.domain.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -48,4 +49,14 @@ public class Business extends BaseEntity {
 
     @OneToMany(mappedBy = "business", fetch = FetchType.LAZY)
     private List<ServiceOffering> serviceList;
+
+    @OneToMany(mappedBy = "business", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BusinessOperatingHour> operatingHours = new ArrayList<>();
+
+    @OneToMany(mappedBy = "business", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BusinessScheduleOverride> scheduleOverrides = new ArrayList<>();
+
+    // Eklenecekler ;
+    // randevuların otomatik mi yoksa manuel mi ayarlanacağı
+    // minimum randevu iptal süresi
 }

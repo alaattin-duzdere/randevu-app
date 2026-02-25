@@ -6,6 +6,7 @@ import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.business.model.BusinessSettings;
 import RandevuApp.domain.business.repository.BusinessRepository;
 import RandevuApp.domain.business.service.IBusinessDomainService;
+import RandevuApp.domain.business.service.IBusinessScheduleDomainService;
 import RandevuApp.domain.service_offering.service.IServiceOfferingDomainService;
 import RandevuApp.domain.staff.service.IStaffDomainService;
 import RandevuApp.domain.user.model.User;
@@ -30,6 +31,7 @@ public class BusinessDomainService implements IBusinessDomainService {
     private final BusinessRepository businessRepository;
     private final IStaffDomainService staffDomainService;
     private final IServiceOfferingDomainService serviceOfferingDomainService;
+    private final IBusinessScheduleDomainService businessScheduleDomainService;
 
     @Override
     public Business createBusinessEntity(CreateBusinessRequest request, User owner, BusinessSettings defaultSettings, String defaultTimeZone) {
@@ -49,6 +51,8 @@ public class BusinessDomainService implements IBusinessDomainService {
 
         business.setBusinessSettings(defaultSettings);
         defaultSettings.setBusiness(business);
+
+        // Operating hours creation moved to BusinessServiceImp after saving business
 
         return business;
     }

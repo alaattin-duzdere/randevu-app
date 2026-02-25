@@ -12,6 +12,7 @@ import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.business.model.BusinessSettings;
 import RandevuApp.domain.business.repository.BusinessSpecification;
 import RandevuApp.domain.business.service.IBusinessDomainService;
+import RandevuApp.domain.business.service.IBusinessScheduleDomainService;
 import RandevuApp.domain.business.service.IBusinessService;
 import RandevuApp.domain.business.service.IBusinessSettingsService;
 import RandevuApp.domain.user.model.User;
@@ -41,6 +42,7 @@ public class BusinessServiceImp implements IBusinessService {
     private final AppointmentRepository appointmentRepository;
     private final IBusinessDomainService businessDomainService;
     private final IBusinessSettingsService businessSettingsService;
+    private final IBusinessScheduleDomainService businessScheduleDomainService;
 
     @Transactional
     public BusinessResponse createBusiness(CreateBusinessRequest request, Long ownerId) {
@@ -70,7 +72,12 @@ public class BusinessServiceImp implements IBusinessService {
                 businessProperties.getDefaultTimezone()
         );
 
+        // Save business
         Business savedBusiness = businessDomainService.save(business);
+
+        // Create default operating hours
+        businessScheduleDomainService.createDefaultOperatingHoursForBusiness(savedBusiness);
+
         return businessMapper.businessToBusinessResponse(savedBusiness);
     }
 
