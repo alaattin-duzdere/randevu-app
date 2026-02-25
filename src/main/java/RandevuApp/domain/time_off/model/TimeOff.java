@@ -1,5 +1,7 @@
-package RandevuApp.domain.staff.model;
+package RandevuApp.domain.time_off.model;
 
+import RandevuApp.commons.model.BaseEntity;
+import RandevuApp.domain.staff.model.Staff;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,11 +13,8 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TimeOff {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Builder
+public class TimeOff extends BaseEntity {
 
     @Column(nullable = false)
     private LocalDateTime startTime;
@@ -23,9 +22,12 @@ public class TimeOff {
     @Column(nullable = false)
     private LocalDateTime endTime;
 
-    // İzin türü (Yıllık izin, hastalık, mola vs.)
-    // Enum yapılabilir ama şimdilik String bırakıyorum
-    private String type;
+    @Column(length = 500)
+    private String note;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
+    private TimeOffType type;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "staff_id", nullable = false)

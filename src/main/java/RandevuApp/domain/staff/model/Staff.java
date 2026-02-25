@@ -2,6 +2,7 @@ package RandevuApp.domain.staff.model;
 
 import RandevuApp.commons.model.BaseEntity;
 import RandevuApp.domain.business.model.Business;
+import RandevuApp.domain.time_off.model.TimeOff;
 import jakarta.persistence.*;
 import lombok.*;
 
