@@ -1,7 +1,7 @@
 package RandevuApp.infrastructure.adapter.locationiq;
 
 import RandevuApp.commons.model.LocationProvider;
-import RandevuApp.domain.business.port.IGeocodingPort;
+import RandevuApp.integration.location.port.IGeocodingPort;
 import RandevuApp.domain.business.dto.GeoLocationResult;
 import RandevuApp.infrastructure.adapter.locationiq.dto.LocationIqResponse;
 
@@ -43,6 +43,7 @@ public class LocationIqAdapter implements IGeocodingPort {
                 return Optional.of(mapToDomainResult(externalLocationId, apiResponse));
             }
 
+            // TODO: what if array has atleast 2 elements
             return Optional.empty();
 
         } catch (HttpClientErrorException.NotFound | HttpClientErrorException.BadRequest e) {

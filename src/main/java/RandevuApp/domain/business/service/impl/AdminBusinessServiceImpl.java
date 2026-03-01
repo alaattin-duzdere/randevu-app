@@ -9,7 +9,7 @@ import RandevuApp.domain.business.dto.UpdateBusinessRequest;
 import RandevuApp.domain.business.mapper.BusinessMapper;
 import RandevuApp.domain.business.model.Address;
 import RandevuApp.domain.business.model.Business;
-import RandevuApp.domain.business.port.IGeocodingPort;
+import RandevuApp.integration.location.port.IGeocodingPort;
 import RandevuApp.domain.business.repository.BusinessRepository;
 import RandevuApp.domain.business.repository.BusinessSpecification;
 import RandevuApp.domain.business.service.IAdminBusinessService;

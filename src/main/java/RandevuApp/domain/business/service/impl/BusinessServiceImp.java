@@ -12,7 +12,7 @@ import RandevuApp.domain.business.dto.CreateBusinessRequest;
 import RandevuApp.domain.business.model.Address;
 import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.business.model.BusinessSettings;
-import RandevuApp.domain.business.port.IGeocodingPort;
+import RandevuApp.integration.location.port.IGeocodingPort;
 import RandevuApp.domain.business.repository.BusinessSpecification;
 import RandevuApp.domain.business.service.IBusinessDomainService;
 import RandevuApp.domain.business.service.IBusinessScheduleDomainService;

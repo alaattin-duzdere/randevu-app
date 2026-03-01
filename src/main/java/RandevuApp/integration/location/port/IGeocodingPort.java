@@ -1,8 +1,7 @@
-package RandevuApp.domain.business.port;
+package RandevuApp.integration.location.port;
 
 import RandevuApp.domain.business.dto.GeoLocationResult;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface IGeocodingPort {
