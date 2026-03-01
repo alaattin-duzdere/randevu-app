@@ -1,7 +1,10 @@
 package RandevuApp.domain.business.dto;
 
 import RandevuApp.commons.validator.ValidTimeZone;
+import RandevuApp.domain.business.model.Address;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -15,8 +18,9 @@ public class CreateBusinessRequest {
     @Size(min = 2, max = 100)
     private String name;
 
-    @NotBlank(message = "Address cannot be blank")
-    private String address;
+    @NotNull(message = "Address details are required")
+    @Valid
+    private Address address;
 
     private String description;
 

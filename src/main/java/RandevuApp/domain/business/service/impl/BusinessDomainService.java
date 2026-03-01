@@ -2,11 +2,11 @@ package RandevuApp.domain.business.service.impl;
 
 import RandevuApp.domain.business.dto.CreateBusinessRequest;
 import RandevuApp.domain.business.dto.UpdateBusinessRequest;
+import RandevuApp.domain.business.model.Address;
 import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.business.model.BusinessSettings;
 import RandevuApp.domain.business.repository.BusinessRepository;
 import RandevuApp.domain.business.service.IBusinessDomainService;
-import RandevuApp.domain.business.service.IBusinessScheduleDomainService;
 import RandevuApp.domain.service_offering.service.IServiceOfferingDomainService;
 import RandevuApp.domain.staff.service.IStaffDomainService;
 import RandevuApp.domain.user.model.User;
@@ -31,13 +31,12 @@ public class BusinessDomainService implements IBusinessDomainService {
     private final BusinessRepository businessRepository;
     private final IStaffDomainService staffDomainService;
     private final IServiceOfferingDomainService serviceOfferingDomainService;
-    private final IBusinessScheduleDomainService businessScheduleDomainService;
 
     @Override
-    public Business createBusinessEntity(CreateBusinessRequest request, User owner, BusinessSettings defaultSettings, String defaultTimeZone) {
+    public Business createBusinessEntity(CreateBusinessRequest request, User owner, BusinessSettings defaultSettings, String defaultTimeZone, Address address) {
         Business business = new Business();
         business.setName(request.getName());
-        business.setAddress(request.getAddress());
+        business.setAddress(address);
         business.setDescription(request.getDescription());
         business.setActive(true);
         business.setOwner(owner);
@@ -107,9 +106,13 @@ public class BusinessDomainService implements IBusinessDomainService {
     }
 
     @Override
-    public Business performUpdateBusiness(Business business, UpdateBusinessRequest request) {
+    public Business performUpdateBusiness(Business business, UpdateBusinessRequest request, Address newAddress) {
         business.setName(request.getName());
-        business.setAddress(request.getAddress());
+        
+        if (newAddress != null) {
+            business.setAddress(newAddress);
+        }
+
         business.setDescription(request.getDescription());
         business.setTimeZone(request.getTimeZone());
         business.setActive(request.getActive());

@@ -22,8 +22,8 @@ public class Business extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private String address;
+    @Embedded
+    private Address address;
 
     @Column(nullable = false, unique = true)
     private String slug;

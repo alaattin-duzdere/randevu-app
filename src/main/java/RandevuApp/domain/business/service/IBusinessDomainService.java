@@ -2,6 +2,7 @@ package RandevuApp.domain.business.service;
 
 import RandevuApp.domain.business.dto.CreateBusinessRequest;
 import RandevuApp.domain.business.dto.UpdateBusinessRequest;
+import RandevuApp.domain.business.model.Address;
 import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.business.model.BusinessSettings;
 import RandevuApp.domain.user.model.User;
@@ -13,7 +14,7 @@ import java.util.List;
 
 public interface IBusinessDomainService {
 
-    Business createBusinessEntity(CreateBusinessRequest request, User owner, BusinessSettings defaultSettings, String defaultTimeZone);
+    Business createBusinessEntity(CreateBusinessRequest request, User owner, BusinessSettings defaultSettings, String defaultTimeZone, Address address);
 
     void validateBusinessOwner(Business business, Long ownerId);
 
@@ -29,7 +30,7 @@ public interface IBusinessDomainService {
 
     Business save(Business business);
 
-    Business performUpdateBusiness(Business business, UpdateBusinessRequest request);
+    Business performUpdateBusiness(Business business, UpdateBusinessRequest request, Address newAddress);
 
     void performDeleteBusiness(Business business);
 }

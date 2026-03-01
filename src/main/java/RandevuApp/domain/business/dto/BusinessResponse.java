@@ -1,11 +1,9 @@
 package RandevuApp.domain.business.dto;
 
-import RandevuApp.domain.business.model.BusinessSettings;
+import RandevuApp.domain.business.model.Address;
 import RandevuApp.domain.service_offering.model.ServiceOffering;
 import RandevuApp.domain.staff.model.Staff;
 import RandevuApp.domain.user.dto.UserResponse;
-import RandevuApp.domain.user.model.User;
-import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,7 +17,7 @@ public class BusinessResponse {
 
     private String name;
 
-    private String address;
+    private Address address;
 
     private String slug;
 

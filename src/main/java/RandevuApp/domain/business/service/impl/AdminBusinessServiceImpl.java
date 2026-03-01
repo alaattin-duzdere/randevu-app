@@ -4,15 +4,19 @@ import RandevuApp.domain.appointment.model.AppointmentStatus;
 import RandevuApp.domain.appointment.repository.AppointmentRepository;
 import RandevuApp.domain.business.dto.BusinessResponse;
 import RandevuApp.domain.business.dto.BusinessSearchRequest;
+import RandevuApp.domain.business.dto.GeoLocationResult;
 import RandevuApp.domain.business.dto.UpdateBusinessRequest;
 import RandevuApp.domain.business.mapper.BusinessMapper;
+import RandevuApp.domain.business.model.Address;
 import RandevuApp.domain.business.model.Business;
+import RandevuApp.domain.business.port.IGeocodingPort;
 import RandevuApp.domain.business.repository.BusinessRepository;
 import RandevuApp.domain.business.repository.BusinessSpecification;
 import RandevuApp.domain.business.service.IAdminBusinessService;
 import RandevuApp.domain.business.service.IBusinessDomainService;
 import RandevuApp.domain.user.model.User;
 import RandevuApp.domain.user.service.IUserDomainService;
+import RandevuApp.exceptions.client.InvalidInputException;
 import RandevuApp.exceptions.client.ObjectDeletionException;
 import RandevuApp.exceptions.client.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +39,7 @@ public class AdminBusinessServiceImpl implements IAdminBusinessService {
     private final BusinessMapper businessMapper;
     private final IUserDomainService userDomainService;
     private final IBusinessDomainService businessDomainService;
+    private final IGeocodingPort geocodingPort;
 
     @Override
     public BusinessResponse getBusinessByIdForAdmin(Long id) {
@@ -71,7 +76,16 @@ public class AdminBusinessServiceImpl implements IAdminBusinessService {
     public BusinessResponse updateBusinessByAdmin(Long businessId, UpdateBusinessRequest request) {
         Business business = businessRepository.findById(businessId).orElseThrow(() -> new ResourceNotFoundException("Business", "id", businessId));
 
-        Business updatedBusiness = businessDomainService.performUpdateBusiness(business, request);
+        Address address = business.getAddress();
+        // Address Update Check
+        if (request.getAddress() != null && !request.getAddress().getExternalLocationId().equals(business.getAddress().getExternalLocationId())) {
+            GeoLocationResult geoLocationResult = geocodingPort.getPlaceDetailsById(request.getAddress().getExternalLocationId())
+                    .orElseThrow(() -> new InvalidInputException("Invalid address location ID."));
+
+            address = businessMapper.geoLocationResultToAddress(geoLocationResult);
+        }
+
+        Business updatedBusiness = businessDomainService.performUpdateBusiness(business, request, address);
         return businessMapper.businessToBusinessResponse(updatedBusiness);
     }
 

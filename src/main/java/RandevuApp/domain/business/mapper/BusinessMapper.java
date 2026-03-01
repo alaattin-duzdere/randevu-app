@@ -2,6 +2,8 @@ package RandevuApp.domain.business.mapper;
 
 import RandevuApp.domain.business.dto.BusinessResponse;
 import RandevuApp.domain.business.dto.BusinessSettingsResponse;
+import RandevuApp.domain.business.dto.GeoLocationResult;
+import RandevuApp.domain.business.model.Address;
 import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.business.model.BusinessSettings;
 import RandevuApp.domain.user.mapper.UserMapper;
@@ -27,6 +29,7 @@ public class BusinessMapper {
         response.setOwner(userMapper.userToUserResponse(business.getOwner()));
         response.setStaffList(business.getStaffList());
         response.setServiceList(business.getServiceList());
+        response.setAddress(business.getAddress());
 
         business.getBusinessSettings().setBusiness(business); // null prevention
         BusinessSettingsResponse businessSettingsResponse = businessSettingsToBusinessSettingsResponse(business.getBusinessSettings());
@@ -42,5 +45,17 @@ public class BusinessMapper {
 
         response.setBusinessId(businessSettings.getBusiness().getId());
         return response;
+    }
+
+    public Address geoLocationResultToAddress(GeoLocationResult geoLocationResult) {
+        return Address.builder()
+                .city(geoLocationResult.getCity())
+                .district(geoLocationResult.getDistrict())
+                .fullAddress(geoLocationResult.getFormattedAddress())
+                .latitude(geoLocationResult.getLatitude())
+                .longitude(geoLocationResult.getLongitude())
+                .provider(geoLocationResult.getProvider())
+                .externalLocationId(geoLocationResult.getExternalLocationId())
+                .build();
     }
 }

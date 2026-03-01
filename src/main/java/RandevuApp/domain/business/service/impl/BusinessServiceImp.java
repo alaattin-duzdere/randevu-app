@@ -4,12 +4,15 @@ import RandevuApp.config.BusinessProperties;
 import RandevuApp.domain.appointment.model.AppointmentStatus;
 import RandevuApp.domain.appointment.repository.AppointmentRepository;
 import RandevuApp.domain.business.dto.BusinessSearchRequest;
+import RandevuApp.domain.business.dto.GeoLocationResult;
 import RandevuApp.domain.business.dto.UpdateBusinessRequest;
 import RandevuApp.domain.business.mapper.BusinessMapper;
 import RandevuApp.domain.business.dto.BusinessResponse;
 import RandevuApp.domain.business.dto.CreateBusinessRequest;
+import RandevuApp.domain.business.model.Address;
 import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.business.model.BusinessSettings;
+import RandevuApp.domain.business.port.IGeocodingPort;
 import RandevuApp.domain.business.repository.BusinessSpecification;
 import RandevuApp.domain.business.service.IBusinessDomainService;
 import RandevuApp.domain.business.service.IBusinessScheduleDomainService;
@@ -20,6 +23,7 @@ import RandevuApp.domain.user.model.UserStatus;
 import RandevuApp.domain.user.service.IUserDomainService;
 import RandevuApp.exceptions.auth.UserBannedException;
 import RandevuApp.exceptions.auth.UserNotActiveException;
+import RandevuApp.exceptions.client.InvalidInputException;
 import RandevuApp.exceptions.client.ObjectDeletionException;
 import RandevuApp.exceptions.client.ConflictException;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +47,7 @@ public class BusinessServiceImp implements IBusinessService {
     private final IBusinessDomainService businessDomainService;
     private final IBusinessSettingsService businessSettingsService;
     private final IBusinessScheduleDomainService businessScheduleDomainService;
+    private final IGeocodingPort geocodingPort;
 
     @Transactional
     public BusinessResponse createBusiness(CreateBusinessRequest request, Long ownerId) {
@@ -61,6 +66,12 @@ public class BusinessServiceImp implements IBusinessService {
             throw new ConflictException("Business with slug '" + request.getSlug() + "' already exists.");
         }
 
+        // Address Validation & Geocoding
+        GeoLocationResult geoLocationResult = geocodingPort.getPlaceDetailsById(request.getAddress().getExternalLocationId())
+                .orElseThrow(() -> new InvalidInputException("Invalid address location ID."));
+
+        Address address = businessMapper.geoLocationResultToAddress(geoLocationResult);
+
         // Get default settings
         BusinessSettings defaultSettings = businessSettingsService.createDefaultSettings();
 
@@ -69,13 +80,14 @@ public class BusinessServiceImp implements IBusinessService {
                 request,
                 owner,
                 defaultSettings,
-                businessProperties.getDefaultTimezone()
+                businessProperties.getDefaultTimezone(),
+                address
         );
 
-        // Save business
+        // 1. Save Business (to get ID)
         Business savedBusiness = businessDomainService.save(business);
 
-        // Create default operating hours
+        // 2. Create Default Operating Hours (Now business has ID)
         businessScheduleDomainService.createDefaultOperatingHoursForBusiness(savedBusiness);
 
         return businessMapper.businessToBusinessResponse(savedBusiness);
@@ -114,7 +126,16 @@ public class BusinessServiceImp implements IBusinessService {
 
         businessDomainService.validateBusinessOwner(business, ownerId);
 
-        Business updatedBusiness = businessDomainService.performUpdateBusiness(business, request);
+        Address address = business.getAddress();
+        // Address Update Check
+        if (request.getAddress() != null && !request.getAddress().getExternalLocationId().equals(business.getAddress().getExternalLocationId())) {
+            GeoLocationResult geoLocationResult = geocodingPort.getPlaceDetailsById(request.getAddress().getExternalLocationId())
+                    .orElseThrow(() -> new InvalidInputException("Invalid address location ID."));
+
+            address = businessMapper.geoLocationResultToAddress(geoLocationResult);
+        }
+
+        Business updatedBusiness = businessDomainService.performUpdateBusiness(business, request, address);
         return businessMapper.businessToBusinessResponse(updatedBusiness);
     }
 
