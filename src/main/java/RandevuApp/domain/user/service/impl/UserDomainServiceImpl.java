@@ -1,11 +1,11 @@
 package RandevuApp.domain.user.service.impl;
 
 import RandevuApp.commons.util.ContactFormatUtil;
-import RandevuApp.domain.auth.dto.RegisterRequest;
 import RandevuApp.domain.auth.repository.RefreshTokenRepository;
 import RandevuApp.domain.user.model.Role;
 import RandevuApp.domain.user.model.User;
 import RandevuApp.domain.user.model.UserStatus;
+import RandevuApp.domain.user.service.param.CreateUserParams;
 import RandevuApp.domain.user.repository.UserRepository;
 import RandevuApp.domain.user.repository.UserSpecifications;
 import RandevuApp.domain.user.service.IUserDomainService;
@@ -54,23 +54,23 @@ public class UserDomainServiceImpl implements IUserDomainService {
 
     @Override
     @Transactional
-    public User createNewUser(RegisterRequest request, String encodedPassword) {
+    public User createNewUser(CreateUserParams params, String encodedPassword) {
 
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(params.email())) {
             throw new ConflictException("Email already in use");
         }
-        if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+        if (userRepository.existsByPhoneNumber(params.email())) {
             throw new ConflictException("Phone number already in use");
         }
 
         return User.builder()
-                .email(request.getEmail())
-                .phoneNumber(request.getPhoneNumber())
+                .email(params.email())
+                .phoneNumber(params.phoneNumber())
                 .password(encodedPassword)
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .address(request.getAddress())
-                .gender(request.getGender())
+                .firstName(params.firstName())
+                .lastName(params.lastName())
+                .address(params.address())
+                .gender(params.gender())
                 .roles(Set.of(Role.USER))
                 .status(UserStatus.PENDING)
                 .build();

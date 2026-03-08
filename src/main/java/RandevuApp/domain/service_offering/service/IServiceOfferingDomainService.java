@@ -2,8 +2,9 @@ package RandevuApp.domain.service_offering.service;
 
 import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.service_catalog.model.ServiceCatalog;
-import RandevuApp.domain.service_offering.dto.UpdateServiceOfferingRequest;
 import RandevuApp.domain.service_offering.model.ServiceOffering;
+import RandevuApp.domain.service_offering.service.param.CreateServiceOfferingParams;
+import RandevuApp.domain.service_offering.service.param.UpdateServiceOfferingParams;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -11,14 +12,14 @@ import java.util.List;
 public interface IServiceOfferingDomainService {
 
     // --- ENTITY CREATION  ---
-    ServiceOffering createEntity(String name, String description, Integer duration, BigDecimal price, Business business);
+    ServiceOffering createEntity(CreateServiceOfferingParams params,Business business);
 
     ServiceOffering cloneFromCatalog(ServiceCatalog catalog, Business business);
 
     // --- BUSINESS RULES ---
     void validateServiceNameIsUniqueForBusiness(Long businessId, String serviceName);
 
-    ServiceOffering performUpdate(ServiceOffering serviceOffering, UpdateServiceOfferingRequest request);
+    ServiceOffering performUpdate(ServiceOffering serviceOffering, UpdateServiceOfferingParams params);
 
 
     // --- REPOSITORY WRAPPERS ---

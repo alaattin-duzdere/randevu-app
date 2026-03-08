@@ -1,10 +1,9 @@
 package RandevuApp.domain.time_off.service.impl;
 
-import RandevuApp.domain.staff.model.Staff;
 import RandevuApp.domain.time_off.model.TimeOff;
-import RandevuApp.domain.time_off.model.TimeOffType;
 import RandevuApp.domain.time_off.repository.TimeOffRepository;
 import RandevuApp.domain.time_off.service.ITimeOffDomainService;
+import RandevuApp.domain.time_off.service.params.CreateTimeOffParams;
 import RandevuApp.exceptions.client.ConflictException;
 import RandevuApp.exceptions.client.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +21,13 @@ public class TimeOffDomainServiceImpl implements ITimeOffDomainService {
     // --- FACTORY ---
 
     @Override
-    public TimeOff createEntity(Staff staff, LocalDateTime startTime, LocalDateTime endTime, TimeOffType type, String note) {
+    public TimeOff createEntity(CreateTimeOffParams params) {
         return TimeOff.builder()
-                .staff(staff)
-                .startTime(startTime)
-                .endTime(endTime)
-                .type(type)
-                .note(note)
+                .staff(params.staff())
+                .startTime(params.startTime())
+                .endTime(params.endTime())
+                .type(params.type())
+                .note(params.note())
                 .build();
     }
 

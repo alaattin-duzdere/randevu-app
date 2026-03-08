@@ -3,6 +3,7 @@ package RandevuApp.domain.time_off.service;
 import RandevuApp.domain.staff.model.Staff;
 import RandevuApp.domain.time_off.model.TimeOff;
 import RandevuApp.domain.time_off.model.TimeOffType;
+import RandevuApp.domain.time_off.service.params.CreateTimeOffParams;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 public interface ITimeOffDomainService {
 
     // --- FACTORY ---
-    TimeOff createEntity(Staff staff, LocalDateTime startTime, LocalDateTime endTime, TimeOffType type, String note);
+    TimeOff createEntity(CreateTimeOffParams params);
 
     // --- BUSINESS RULES ---
     void validateDates(LocalDateTime startTime, LocalDateTime endTime);

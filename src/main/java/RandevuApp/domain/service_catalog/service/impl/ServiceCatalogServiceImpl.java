@@ -6,6 +6,8 @@ import RandevuApp.domain.service_catalog.dto.UpdateServiceCatalogRequest;
 import RandevuApp.domain.service_catalog.model.ServiceCatalog;
 import RandevuApp.domain.service_catalog.service.IServiceCatalogDomainService;
 import RandevuApp.domain.service_catalog.service.IServiceCatalogService;
+import RandevuApp.domain.service_catalog.service.param.CreateServiceCatalogParams;
+import RandevuApp.domain.service_catalog.service.param.UpdateServiceCatalogParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,12 +31,13 @@ public class ServiceCatalogServiceImpl implements IServiceCatalogService {
         catalogDomainService.validateCatalogNameIsUnique(request.getName());
 
         // 2. Entity'yi oluştur
-        ServiceCatalog catalog = catalogDomainService.createEntity(
+        CreateServiceCatalogParams params = new CreateServiceCatalogParams(
                 request.getName(),
                 request.getDescription(),
                 request.getDurationInMinutes(),
                 request.getPrice()
         );
+        ServiceCatalog catalog = catalogDomainService.createEntity(params);
 
         // 3. Veritabanına kaydet
         ServiceCatalog savedCatalog = catalogDomainService.save(catalog);
@@ -57,7 +60,14 @@ public class ServiceCatalogServiceImpl implements IServiceCatalogService {
         }
 
         // 3. Güncelleme işlemini uygula
-        ServiceCatalog updatedCatalog = catalogDomainService.performUpdate(catalog, request);
+        UpdateServiceCatalogParams params = new UpdateServiceCatalogParams(
+                request.getName(),
+                request.getDescription(),
+                request.getDurationInMinutes(),
+                request.getPrice(),
+                request.getActive()
+        );
+        ServiceCatalog updatedCatalog = catalogDomainService.performUpdate(catalog, params);
 
         // 4. Kaydet
         catalogDomainService.save(updatedCatalog);

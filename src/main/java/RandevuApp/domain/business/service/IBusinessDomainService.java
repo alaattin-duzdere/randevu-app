@@ -1,10 +1,10 @@
 package RandevuApp.domain.business.service;
 
-import RandevuApp.domain.business.dto.CreateBusinessRequest;
-import RandevuApp.domain.business.dto.UpdateBusinessRequest;
 import RandevuApp.domain.business.model.Address;
 import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.business.model.BusinessSettings;
+import RandevuApp.domain.business.service.params.CreateBusinessParams;
+import RandevuApp.domain.business.service.params.UpdateBusinessParams;
 import RandevuApp.domain.user.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +14,7 @@ import java.util.List;
 
 public interface IBusinessDomainService {
 
-    Business createBusinessEntity(CreateBusinessRequest request, User owner, BusinessSettings defaultSettings, String defaultTimeZone, Address address);
+    Business createBusinessEntity(CreateBusinessParams param, User owner, BusinessSettings defaultSettings, String defaultTimeZone, Address address);
 
     void validateBusinessOwner(Business business, Long ownerId);
 
@@ -30,7 +30,7 @@ public interface IBusinessDomainService {
 
     Business save(Business business);
 
-    Business performUpdateBusiness(Business business, UpdateBusinessRequest request, Address newAddress);
+    Business performUpdateBusiness(Business business, UpdateBusinessParams params, Address newAddress);
 
     void performDeleteBusiness(Business business);
 }

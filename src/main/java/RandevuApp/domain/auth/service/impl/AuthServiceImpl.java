@@ -10,6 +10,7 @@ import RandevuApp.domain.notification.model.NotificationChannel;
 import RandevuApp.domain.user.model.User;
 import RandevuApp.domain.user.model.UserStatus;
 import RandevuApp.domain.user.model.VerificationStatus;
+import RandevuApp.domain.user.service.param.CreateUserParams;
 import RandevuApp.domain.user.service.IUserDomainService;
 import RandevuApp.domain.verification.model.VerificationPurpose;
 import RandevuApp.domain.verification.model.VerificationRequest;
@@ -60,8 +61,17 @@ public class AuthServiceImpl implements IAuthService {
     public void register(RegisterRequest request) {
         log.info("Registering new user with email: {}", request.getEmail());
 
+        CreateUserParams createUserParams = new CreateUserParams(
+                request.getEmail(),
+                request.getPhoneNumber(),
+                request.getFirstName(),
+                request.getLastName(),
+                request.getGender(), request.getAddress());
+
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+
         // 1. Create and save User via UserDomainService
-        User user = userDomainService.createNewUser(request, passwordEncoder.encode(request.getPassword()));
+        User user = userDomainService.createNewUser(createUserParams,encodedPassword);
         user = userDomainService.saveUser(user);
 
         // 2. Start Verification (SMS)

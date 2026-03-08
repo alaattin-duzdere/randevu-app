@@ -12,6 +12,8 @@ import RandevuApp.domain.business.dto.CreateBusinessRequest;
 import RandevuApp.domain.business.model.Address;
 import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.business.model.BusinessSettings;
+import RandevuApp.domain.business.service.params.CreateBusinessParams;
+import RandevuApp.domain.business.service.params.UpdateBusinessParams;
 import RandevuApp.integration.location.port.IGeocodingPort;
 import RandevuApp.domain.business.repository.BusinessSpecification;
 import RandevuApp.domain.business.service.IBusinessDomainService;
@@ -76,8 +78,16 @@ public class BusinessServiceImp implements IBusinessService {
         BusinessSettings defaultSettings = businessSettingsService.createDefaultSettings();
 
         // Create business entity
+        CreateBusinessParams param = new CreateBusinessParams(
+                request.getName(),
+                address,
+                request.getDescription(),
+                request.getTimeZone(),
+                request.getSlug()
+        );
+
         Business business = businessDomainService.createBusinessEntity(
-                request,
+                param,
                 owner,
                 defaultSettings,
                 businessProperties.getDefaultTimezone(),
@@ -135,7 +145,15 @@ public class BusinessServiceImp implements IBusinessService {
             address = businessMapper.geoLocationResultToAddress(geoLocationResult);
         }
 
-        Business updatedBusiness = businessDomainService.performUpdateBusiness(business, request, address);
+        // Update Business
+        UpdateBusinessParams params = new UpdateBusinessParams(
+                request.getName(),
+                request.getDescription(),
+                request.getTimeZone(),
+                request.getActive()
+        );
+        Business updatedBusiness = businessDomainService.performUpdateBusiness(business, params, address);
+
         return businessMapper.businessToBusinessResponse(updatedBusiness);
     }
 

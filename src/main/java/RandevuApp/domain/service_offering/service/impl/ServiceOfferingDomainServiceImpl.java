@@ -2,8 +2,9 @@ package RandevuApp.domain.service_offering.service.impl;
 
 import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.service_catalog.model.ServiceCatalog;
-import RandevuApp.domain.service_offering.dto.UpdateServiceOfferingRequest;
 import RandevuApp.domain.service_offering.model.ServiceOffering;
+import RandevuApp.domain.service_offering.service.param.CreateServiceOfferingParams;
+import RandevuApp.domain.service_offering.service.param.UpdateServiceOfferingParams;
 import RandevuApp.domain.service_offering.repository.ServiceOfferingRepository;
 import RandevuApp.domain.service_offering.service.IServiceOfferingDomainService;
 import RandevuApp.exceptions.client.ConflictException;
@@ -11,7 +12,6 @@ import RandevuApp.exceptions.client.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -23,12 +23,12 @@ public class ServiceOfferingDomainServiceImpl implements IServiceOfferingDomainS
     // Factory Methods
 
     @Override
-    public ServiceOffering createEntity(String name, String description, Integer duration, BigDecimal price, Business business) {
+    public ServiceOffering createEntity(CreateServiceOfferingParams params, Business business) {
         return ServiceOffering.builder()
-                .name(name)
-                .description(description)
-                .durationInMinutes(duration)
-                .price(price)
+                .name(params.name())
+                .description(params.description())
+                .durationInMinutes(params.duration())
+                .price(params.price())
                 .active(true)
                 .business(business)
                 .build();
@@ -56,21 +56,21 @@ public class ServiceOfferingDomainServiceImpl implements IServiceOfferingDomainS
     }
 
     @Override
-    public ServiceOffering performUpdate(ServiceOffering serviceOffering, UpdateServiceOfferingRequest request) {
-        if (request.getName() != null && !request.getName().isBlank()) {
-            serviceOffering.setName(request.getName());
+    public ServiceOffering performUpdate(ServiceOffering serviceOffering, UpdateServiceOfferingParams params) {
+        if (params.name() != null && !params.name().isBlank()) {
+            serviceOffering.setName(params.name());
         }
-        if (request.getDescription() != null) {
-            serviceOffering.setDescription(request.getDescription());
+        if (params.description() != null) {
+            serviceOffering.setDescription(params.description());
         }
-        if (request.getDurationInMinutes() != null) {
-            serviceOffering.setDurationInMinutes(request.getDurationInMinutes());
+        if (params.durationInMinutes() != null) {
+            serviceOffering.setDurationInMinutes(params.durationInMinutes());
         }
-        if (request.getPrice() != null) {
-            serviceOffering.setPrice(request.getPrice());
+        if (params.price() != null) {
+            serviceOffering.setPrice(params.price());
         }
-        if (request.getActive() != null) {
-            serviceOffering.setActive(request.getActive());
+        if (params.active() != null) {
+            serviceOffering.setActive(params.active());
         }
 
         return serviceOffering;

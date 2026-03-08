@@ -1,7 +1,7 @@
 package RandevuApp.domain.user.service;
 
-import RandevuApp.domain.auth.dto.RegisterRequest;
 import RandevuApp.domain.user.model.User;
+import RandevuApp.domain.user.service.param.CreateUserParams;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -10,7 +10,7 @@ public interface IUserDomainService {
 
     User findUserById(Long id);
 
-    User createNewUser(RegisterRequest request, String encodedPassword);
+    User createNewUser(CreateUserParams params, String encodedPassword);
 
     User saveUser(User user);
 

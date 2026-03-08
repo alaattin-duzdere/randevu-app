@@ -11,6 +11,7 @@ import RandevuApp.domain.time_off.model.TimeOff;
 import RandevuApp.domain.staff.service.IStaffDomainService;
 import RandevuApp.domain.time_off.service.ITimeOffDomainService;
 import RandevuApp.domain.time_off.service.ITimeOffService;
+import RandevuApp.domain.time_off.service.params.CreateTimeOffParams;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,13 +37,14 @@ public class TimeOffServiceImpl implements ITimeOffService {
 
         timeOffDomainService.validateNoOverlap(staffId, request.getStartTime(), request.getEndTime(), null);
 
-        TimeOff timeOff = timeOffDomainService.createEntity(
+        CreateTimeOffParams params = new CreateTimeOffParams(
                 staff,
                 request.getStartTime(),
                 request.getEndTime(),
                 request.getType(),
                 request.getNote()
         );
+        TimeOff timeOff = timeOffDomainService.createEntity(params);
 
         TimeOff savedTimeOff = timeOffDomainService.save(timeOff);
         return mapper.entityToResponse(savedTimeOff);

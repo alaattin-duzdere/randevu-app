@@ -9,6 +9,7 @@ import RandevuApp.domain.business.dto.UpdateBusinessRequest;
 import RandevuApp.domain.business.mapper.BusinessMapper;
 import RandevuApp.domain.business.model.Address;
 import RandevuApp.domain.business.model.Business;
+import RandevuApp.domain.business.service.params.UpdateBusinessParams;
 import RandevuApp.integration.location.port.IGeocodingPort;
 import RandevuApp.domain.business.repository.BusinessRepository;
 import RandevuApp.domain.business.repository.BusinessSpecification;
@@ -85,7 +86,15 @@ public class AdminBusinessServiceImpl implements IAdminBusinessService {
             address = businessMapper.geoLocationResultToAddress(geoLocationResult);
         }
 
-        Business updatedBusiness = businessDomainService.performUpdateBusiness(business, request, address);
+        // Update Business
+        UpdateBusinessParams params = new UpdateBusinessParams(
+                request.getName(),
+                request.getDescription(),
+                request.getTimeZone(),
+                request.getActive()
+        );
+        Business updatedBusiness = businessDomainService.performUpdateBusiness(business, params, address);
+
         return businessMapper.businessToBusinessResponse(updatedBusiness);
     }
 

@@ -1,12 +1,12 @@
 package RandevuApp.domain.business.service.impl;
 
-import RandevuApp.domain.business.dto.CreateBusinessRequest;
-import RandevuApp.domain.business.dto.UpdateBusinessRequest;
 import RandevuApp.domain.business.model.Address;
 import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.business.model.BusinessSettings;
 import RandevuApp.domain.business.repository.BusinessRepository;
 import RandevuApp.domain.business.service.IBusinessDomainService;
+import RandevuApp.domain.business.service.params.CreateBusinessParams;
+import RandevuApp.domain.business.service.params.UpdateBusinessParams;
 import RandevuApp.domain.service_offering.service.IServiceOfferingDomainService;
 import RandevuApp.domain.staff.service.IStaffDomainService;
 import RandevuApp.domain.user.model.User;
@@ -33,20 +33,20 @@ public class BusinessDomainService implements IBusinessDomainService {
     private final IServiceOfferingDomainService serviceOfferingDomainService;
 
     @Override
-    public Business createBusinessEntity(CreateBusinessRequest request, User owner, BusinessSettings defaultSettings, String defaultTimeZone, Address address) {
+    public Business createBusinessEntity(CreateBusinessParams param, User owner, BusinessSettings defaultSettings, String defaultTimeZone, Address address) {
         Business business = new Business();
-        business.setName(request.getName());
+        business.setName(param.name());
         business.setAddress(address);
-        business.setDescription(request.getDescription());
+        business.setDescription(param.description());
         business.setActive(true);
         business.setOwner(owner);
 
-        String timeZone = StringUtils.hasText(request.getTimeZone())
-                ? request.getTimeZone()
+        String timeZone = StringUtils.hasText(param.timeZone())
+                ? param.timeZone()
                 : defaultTimeZone;
         business.setTimeZone(timeZone);
 
-        business.setSlug(generateSlug(request.getName(), request.getSlug()));
+        business.setSlug(generateSlug(param.name(), param.slug()));
 
         business.setBusinessSettings(defaultSettings);
         defaultSettings.setBusiness(business);
@@ -106,16 +106,16 @@ public class BusinessDomainService implements IBusinessDomainService {
     }
 
     @Override
-    public Business performUpdateBusiness(Business business, UpdateBusinessRequest request, Address newAddress) {
-        business.setName(request.getName());
-        
+    public Business performUpdateBusiness(Business business, UpdateBusinessParams params, Address newAddress) {
+        business.setName(params.name());
+
         if (newAddress != null) {
             business.setAddress(newAddress);
         }
 
-        business.setDescription(request.getDescription());
-        business.setTimeZone(request.getTimeZone());
-        business.setActive(request.getActive());
+        business.setDescription(params.description());
+        business.setTimeZone(params.timeZone());
+        business.setActive(params.active());
 
         return businessRepository.save(business);
     }

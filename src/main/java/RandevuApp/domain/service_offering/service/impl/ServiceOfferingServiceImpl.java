@@ -9,6 +9,8 @@ import RandevuApp.domain.service_offering.dto.ServiceOfferingResponse;
 import RandevuApp.domain.service_offering.dto.UpdateServiceOfferingRequest;
 import RandevuApp.domain.service_offering.mapper.ServiceOfferingMapper;
 import RandevuApp.domain.service_offering.model.ServiceOffering;
+import RandevuApp.domain.service_offering.service.param.CreateServiceOfferingParams;
+import RandevuApp.domain.service_offering.service.param.UpdateServiceOfferingParams;
 import RandevuApp.domain.service_offering.service.IServiceOfferingDomainService;
 import RandevuApp.domain.service_offering.service.IServiceOfferingService;
 import lombok.RequiredArgsConstructor;
@@ -37,13 +39,14 @@ public class ServiceOfferingServiceImpl implements IServiceOfferingService {
         serviceOfferingDomainService.validateServiceNameIsUniqueForBusiness(businessId, request.getName());
 
         // create entity
-        ServiceOffering serviceOffering = serviceOfferingDomainService.createEntity(
+        CreateServiceOfferingParams params = new CreateServiceOfferingParams(
                 request.getName(),
                 request.getDescription(),
                 request.getDurationInMinutes(),
                 request.getPrice(),
                 business
         );
+        ServiceOffering serviceOffering = serviceOfferingDomainService.createEntity(params, business);
 
         // save and return
         ServiceOffering savedService = serviceOfferingDomainService.save(serviceOffering);
@@ -103,7 +106,15 @@ public class ServiceOfferingServiceImpl implements IServiceOfferingService {
             serviceOfferingDomainService.validateServiceNameIsUniqueForBusiness(businessId, request.getName());
         }
 
-        ServiceOffering updatedService = serviceOfferingDomainService.performUpdate(serviceOffering, request);
+        UpdateServiceOfferingParams params = new UpdateServiceOfferingParams(
+                request.getName(),
+                request.getDescription(),
+                request.getDurationInMinutes(),
+                request.getPrice(),
+                request.getActive()
+        );
+
+        ServiceOffering updatedService = serviceOfferingDomainService.performUpdate(serviceOffering, params);
 
         serviceOfferingDomainService.save(updatedService);
 
