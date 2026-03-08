@@ -39,11 +39,14 @@ public class LocationIqAdapter implements IGeocodingPort {
                     .body(LocationIqResponse[].class);
 
             if (responseArray != null && responseArray.length > 0) {
+                if (responseArray.length > 1) {
+                    log.warn("Dikkat! LocationIQ'dan ID: {} için birden fazla ({}) sonuç döndü. En yüksek eşleşme (ilk sonuç) kullanılıyor.",
+                            externalLocationId, responseArray.length);
+                }
                 LocationIqResponse apiResponse = responseArray[0];
                 return Optional.of(mapToDomainResult(externalLocationId, apiResponse));
             }
 
-            // TODO: what if array has atleast 2 elements
             return Optional.empty();
 
         } catch (HttpClientErrorException.NotFound | HttpClientErrorException.BadRequest e) {
