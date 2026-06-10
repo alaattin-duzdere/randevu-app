@@ -33,7 +33,6 @@ public class VerificationController {
 //        return ResponseEntity.ok().build();
 //    }
 
-    // B. KOD DOĞRULAMA (Kullanıcı formu doldurur, JSON atar)
     @PostMapping("/confirm-code")
     public ResponseEntity<String> confirmCode(@RequestBody CodeConfirmRequest request) {
         validateConfirmPurpose(request.getPurpose());
@@ -41,7 +40,6 @@ public class VerificationController {
         return ResponseEntity.ok("Kod doğrulandı!");
     }
 
-    // C. LINK DOĞRULAMA (Kullanıcı emaildeki linke tıklar, GET isteği gelir)
     @GetMapping("/confirm-link")
     public ResponseEntity<String> confirmLink(@RequestParam("token") String token,
                                               @RequestParam("userId") Long userId,

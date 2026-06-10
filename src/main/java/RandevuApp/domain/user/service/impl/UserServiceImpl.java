@@ -235,7 +235,7 @@ public class UserServiceImpl implements IUserService {
 
         // Appointment check
         List<AppointmentStatus> activeStatuses = List.of(
-                AppointmentStatus.CREATED,
+                AppointmentStatus.PENDING,
                 AppointmentStatus.CONFIRMED
         );
 

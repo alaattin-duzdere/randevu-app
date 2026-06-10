@@ -2,7 +2,6 @@ package RandevuApp.domain.user.dto;
 
 import RandevuApp.commons.annotation.ValidPhone;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data

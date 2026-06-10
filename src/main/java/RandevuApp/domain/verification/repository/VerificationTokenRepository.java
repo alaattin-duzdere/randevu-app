@@ -27,7 +27,7 @@ public interface VerificationTokenRepository extends JpaRepository<VerificationE
     // Old zombies delete when new token come
     void deleteByUserIdAndTypeAndPurposeAndConfirmedAtIsNull(Long userId, VerificationType type, VerificationPurpose purpose);
 
-    // super duper amazing fantastic query
+    // super-duper amazing fantastic query
     @Modifying(clearAutomatically = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Query("UPDATE VerificationEntity v SET v.attemptCount = v.attemptCount + 1 WHERE v.id = :id")

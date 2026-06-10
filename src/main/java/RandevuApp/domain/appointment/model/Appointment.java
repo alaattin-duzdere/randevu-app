@@ -7,8 +7,6 @@ import RandevuApp.domain.staff.model.Staff;
 import RandevuApp.domain.user.model.User;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

@@ -1,8 +1,9 @@
 package RandevuApp.domain.appointment.model;
 
 public enum AppointmentStatus {
-    CREATED,
+    PENDING,
     CONFIRMED,
+    REJECTED,
     CANCELLED,
     COMPLETED
 }

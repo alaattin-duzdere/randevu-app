@@ -166,7 +166,7 @@ public class BusinessServiceImp implements IBusinessService {
         // check for active appointments
         boolean hasActiveAppointments = appointmentRepository.existsByBusinessIdAndAppointmentStatusIn(
                 business.getId(),
-                List.of(AppointmentStatus.CREATED, AppointmentStatus.CONFIRMED)
+                List.of(AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED)
         );
 
         if (hasActiveAppointments) {

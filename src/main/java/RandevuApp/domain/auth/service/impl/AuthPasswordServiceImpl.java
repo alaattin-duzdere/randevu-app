@@ -61,11 +61,6 @@ public class AuthPasswordServiceImpl implements IAuthPasswordService {
     }
 
     @Override
-    public ResponseEntity<Void> handleResetPassword(String token) {
-        return ResponseEntity.ok().build();
-    }
-
-    @Override
     @Transactional
     public String resetPassword(ResetPasswordRequest resetPasswordRequest) {
         log.warn("Resetting password for token: {}", resetPasswordRequest.getToken());

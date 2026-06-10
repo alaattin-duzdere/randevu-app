@@ -6,7 +6,6 @@ import RandevuApp.domain.auth.repository.PasswordResetTokenRepository;
 import RandevuApp.domain.notification.model.NotificationCategory;
 import RandevuApp.domain.notification.model.NotificationChannel;
 import RandevuApp.domain.notification.model.NotificationRequest;
-import RandevuApp.domain.notification.model.VerificationNotificationRequest;
 import RandevuApp.domain.notification.service.INotificationService;
 import RandevuApp.domain.user.model.User;
 import RandevuApp.domain.user.repository.UserRepository;
@@ -18,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
@@ -55,15 +55,15 @@ public class SmsPasswordResetStrategy implements IPasswordResetStrategy {
         log.warn("Sending password reset SMS to: {}", phoneNumber);
         String message = "Randevu App şifre sıfırlama kodunuz: " + code + ". Bu kod 15 dakika geçerlidir.";
 
-        VerificationNotificationRequest verificationNotificationRequest = VerificationNotificationRequest.builder()
+        NotificationRequest notificationRequest = NotificationRequest.builder()
                 .recipient(phoneNumber)
                 .userId(user.getId())
                 .message(message)
                 .category(NotificationCategory.PASSWORD_RESET) // SMS için template kullanılmayabilir ama kategori tutarlılığı için iyi
-                .channel(NotificationChannel.SMS)
+                .explicitChannels(Set.of(NotificationChannel.SMS)) // Sadece SMS kanalından zorunlu gönderim
                 .build();
 
-        notificationService.sendVerificationNotification(verificationNotificationRequest);
+        notificationService.send(notificationRequest);
 
         return "Password reset code sent to " + phoneNumber;
     }

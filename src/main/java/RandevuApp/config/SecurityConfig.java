@@ -27,12 +27,12 @@ public class SecurityConfig {
             JwtAuthenticationFilter jwtAuthenticationFilter,
             JwtBlacklistFilter jwtBlacklistFilter,
             @Autowired(required = false) OAuth2SuccessHandler successHandler
-    ) throws Exception
-    {
+    ) {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(authProperties.getWhitelist().toArray(new String[0])).permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement((sess) -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

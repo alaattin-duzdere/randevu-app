@@ -2,10 +2,9 @@ package RandevuApp.domain.user.listener;
 
 import RandevuApp.domain.user.model.User;
 import RandevuApp.domain.user.model.UserStatus;
-import RandevuApp.domain.user.repository.UserRepository;
+import RandevuApp.domain.user.service.IUserDomainService;
 import RandevuApp.domain.user.service.IUserService;
 import RandevuApp.domain.verification.event.VerificationCompletedEvent;
-import RandevuApp.exceptions.client.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -19,7 +18,7 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class UserVerificationListener {
 
-    private final UserRepository userRepository;
+    private final IUserDomainService userDomainService;
 
     private final IUserService userService;
 
@@ -28,7 +27,7 @@ public class UserVerificationListener {
     public void onPhoneVerification(VerificationCompletedEvent event) {
         log.info("Handling PHONE_VERIFICATION for User ID: {}", event.getUserId());
 
-        User user = getUser(event.getUserId());
+        User user = userDomainService.findUserById(event.getUserId());
 
         user.setPhoneVerifiedAt(Instant.now());
 
@@ -37,8 +36,8 @@ public class UserVerificationListener {
             user.setStatus(UserStatus.ACTIVE);
             log.info("User ID: {} activated after phone verification.", user.getId());
         }
-        
-        userRepository.save(user);
+
+        userDomainService.saveUser(user);
         log.info("User ID: {} phone number verified successfully.", user.getId());
     }
 
@@ -47,11 +46,11 @@ public class UserVerificationListener {
     public void onEmailVerification(VerificationCompletedEvent event) {
         log.info("Handling EMAIL_VERIFICATION for User ID: {}", event.getUserId());
 
-        User user = getUser(event.getUserId());
+        User user = userDomainService.findUserById(event.getUserId());
 
         user.setEmailVerifiedAt(Instant.now());
-        
-        userRepository.save(user);
+
+        userDomainService.saveUser(user);
         log.info("User ID: {} email address verified successfully.", user.getId());
     }
 
@@ -67,11 +66,5 @@ public class UserVerificationListener {
     public void onEmailChange(VerificationCompletedEvent event) {
         log.info("Handling EMAIL_CHANGE for User ID: {}", event.getUserId());
         userService.changeEmail(event.getUserId());
-    }
-
-    // Helper method to avoid code duplication
-    private User getUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
     }
 }

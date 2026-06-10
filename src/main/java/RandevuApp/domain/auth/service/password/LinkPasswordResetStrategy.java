@@ -6,7 +6,6 @@ import RandevuApp.domain.auth.repository.PasswordResetTokenRepository;
 import RandevuApp.domain.notification.model.NotificationCategory;
 import RandevuApp.domain.notification.model.NotificationChannel;
 import RandevuApp.domain.notification.model.NotificationRequest;
-import RandevuApp.domain.notification.model.VerificationNotificationRequest;
 import RandevuApp.domain.notification.service.INotificationService;
 import RandevuApp.domain.user.model.User;
 import RandevuApp.domain.user.repository.UserRepository;
@@ -19,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -59,8 +59,8 @@ public class LinkPasswordResetStrategy implements IPasswordResetStrategy {
         String url = frontendUrl + "/reset-password?token=" + token;
         String message = "Click the link to reset your password: " + url;
 
-        // NotificationRequest oluştur
-        VerificationNotificationRequest verificationNotificationRequest = VerificationNotificationRequest.builder()
+        // Standart NotificationRequest oluştur
+        NotificationRequest notificationRequest = NotificationRequest.builder()
                 .recipient(email)
                 .userId(user.getId())
                 .subject(subject)
@@ -68,10 +68,10 @@ public class LinkPasswordResetStrategy implements IPasswordResetStrategy {
                 .category(NotificationCategory.PASSWORD_RESET)
                 .variable("link", url)
                 .variable("name", user.getFirstName())
-                .channel(NotificationChannel.EMAIL)
+                .explicitChannels(Set.of(NotificationChannel.EMAIL)) // Sadece e-posta kanalından zorunlu gönderim
                 .build();
 
-        notificationService.sendVerificationNotification(verificationNotificationRequest);
+        notificationService.send(notificationRequest);
 
         return "Password reset instructions sent to " + email;
     }

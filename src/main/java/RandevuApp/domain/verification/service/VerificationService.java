@@ -3,7 +3,7 @@ package RandevuApp.domain.verification.service;
 import RandevuApp.api.ApiStatus;
 import RandevuApp.config.VerificationProperties;
 import RandevuApp.domain.notification.model.NotificationCategory;
-import RandevuApp.domain.notification.model.VerificationNotificationRequest;
+import RandevuApp.domain.notification.model.NotificationRequest;
 import RandevuApp.domain.notification.model.NotificationChannel;
 import RandevuApp.domain.notification.service.INotificationService;
 import RandevuApp.domain.user.model.User;
@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -110,17 +111,17 @@ public class VerificationService {
                 ? NotificationCategory.LINK_VERIFICATION 
                 : NotificationCategory.CODE_VERIFICATION;
 
-        VerificationNotificationRequest verificationNotificationRequest = VerificationNotificationRequest.builder()
+        NotificationRequest notificationRequest = NotificationRequest.builder()
                 .userId(request.getUserId())
                 .recipient(recipient)
-                .channel(request.getChannel())
+                .explicitChannels(Set.of(request.getChannel())) // Zorunlu kanal atanıyor
                 .message(payload.getMessage())
                 .subject(payload.getSubject())
                 .category(category) // Set dynamic category
                 .variables(payload.getVariables())
                 .build();
 
-        notificationService.sendVerificationNotification(verificationNotificationRequest);
+        notificationService.send(notificationRequest);
     }
 
     private String resolveRecipient(NotificationChannel channel,User user) {
@@ -131,7 +132,7 @@ public class VerificationService {
     }
 
     @Transactional
-    public VerificationResult verify(String input, VerificationType type, Long userId, VerificationPurpose purpose) {
+    public VerificationResult verify(String secret, VerificationType type, Long userId, VerificationPurpose purpose) {
         IVerificationStrategy strategy = strategyMap.get(type);
         VerificationPurpose searchPurpose = (purpose != null) ? purpose : VerificationPurpose.GENERAL;
 
@@ -152,8 +153,8 @@ public class VerificationService {
         }
 
         try {
-            strategy.validate(entity.getSecret(), input, passwordEncoder);
-        } catch (Exception e) {
+            strategy.validate(entity.getSecret(), secret, passwordEncoder);
+        } catch (VerificationFailedException e) {
             // Increment attempt count on failure
             tokenRepository.incrementAttemptCount(entity.getId());
             throw e;

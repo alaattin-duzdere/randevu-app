@@ -3,7 +3,6 @@ package RandevuApp.domain.notification.service.impl;
 import RandevuApp.domain.notification.model.NotificationCategory;
 import RandevuApp.domain.notification.model.NotificationChannel;
 import RandevuApp.domain.notification.model.NotificationRequest;
-import RandevuApp.domain.notification.model.VerificationNotificationRequest;
 import RandevuApp.domain.notification.service.INotificationService;
 import RandevuApp.domain.notification.service.IUserNotificationPreferenceService;
 import RandevuApp.domain.notification.service.strategy.NotificationStrategy;
@@ -35,7 +34,9 @@ public class NotificationServiceImpl implements INotificationService {
     public void send(NotificationRequest request) {
         try {
             // 1. Determine which channels to use based on User Preferences and Notification Category
-            Set<NotificationChannel> channels = resolveChannels(request.getUserId(), request.getCategory());
+            Set<NotificationChannel> channels = (request.getExplicitChannels() != null && !request.getExplicitChannels().isEmpty()) 
+                    ? request.getExplicitChannels() 
+                    : resolveChannels(request.getUserId(), request.getCategory());
             log.info("Resolved notification channels for User {} and Category {}: {}", request.getUserId(), request.getCategory(), channels);
 
             if (channels.isEmpty()) {
@@ -60,22 +61,6 @@ public class NotificationServiceImpl implements INotificationService {
         } catch (Exception e) {
             // Catch-all for async execution errors to prevent thread death without log
             log.error("Unexpected error during async notification processing for User {}", request.getUserId(), e);
-        }
-    }
-
-    @Override
-    public void sendVerificationNotification(VerificationNotificationRequest request) {
-        NotificationChannel channel = request.getChannel();
-
-        NotificationStrategy strategy = strategies.get(channel);
-        if (strategy != null) {
-            try {
-                strategy.send(request.getNotificationRequest());
-            } catch (Exception e) {
-                log.error("Failed to send notification via {} to User {}", channel, request.getUserId(), e);
-            }
-        } else {
-            log.warn("No strategy found for notification channel: {}", channel);
         }
     }
 
