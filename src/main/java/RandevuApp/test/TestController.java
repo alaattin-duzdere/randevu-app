@@ -7,7 +7,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin("*")
 public class TestController {
     private final TestUserService testUserService;
     private final UserRepository userRepository;

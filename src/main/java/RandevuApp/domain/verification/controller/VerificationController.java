@@ -1,20 +1,16 @@
 package RandevuApp.domain.verification.controller;
 
-import RandevuApp.domain.user.model.User;
-import RandevuApp.domain.user.service.IUserDomainService;
 import RandevuApp.domain.verification.dto.CodeConfirmRequest;
 import RandevuApp.domain.verification.model.VerificationPurpose;
-import RandevuApp.domain.verification.model.VerificationRequest;
 import RandevuApp.domain.verification.model.VerificationType;
 import RandevuApp.domain.verification.service.VerificationService;
-import RandevuApp.domain.verification.validator.VerificationFilterChainManager;
 import RandevuApp.exceptions.verification.VerificationPurposeException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/verification")
+@RequestMapping("/api/verification")
 @RequiredArgsConstructor
 public class VerificationController {
 
@@ -41,9 +37,7 @@ public class VerificationController {
     }
 
     @GetMapping("/confirm-link")
-    public ResponseEntity<String> confirmLink(@RequestParam("token") String token,
-                                              @RequestParam("userId") Long userId,
-                                              @RequestParam(value = "purpose", defaultValue = "GENERAL") VerificationPurpose purpose) {
+    public ResponseEntity<String> confirmLink(@RequestParam("token") String token, @RequestParam("userId") Long userId, @RequestParam(value = "purpose", defaultValue = "GENERAL") VerificationPurpose purpose) {
         validateConfirmPurpose(purpose);
         verificationService.verify(token, VerificationType.LINK, userId, purpose);
         return ResponseEntity.ok("Hesap doğrulandı!");
