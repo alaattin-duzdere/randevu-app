@@ -16,8 +16,8 @@ public class BusinessSpecification {
             List<Predicate> predicates = new ArrayList<>();
 
             // 1. Genel Metin Araması (Name, Description veya Slug içinde)
-            if (StringUtils.hasText(request.getQuery())) {
-                String searchKey = "%" + request.getQuery().toLowerCase() + "%";
+            if (StringUtils.hasText(request.query())) {
+                String searchKey = "%" + request.query().toLowerCase() + "%";
 
                 Predicate namePredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), searchKey);
                 Predicate descPredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), searchKey);
@@ -28,16 +28,16 @@ public class BusinessSpecification {
             }
 
             // 2. Adres Filtresi
-            if (StringUtils.hasText(request.getAddress())) {
+            if (StringUtils.hasText(request.address())) {
                 predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("address")),
-                        "%" + request.getAddress().toLowerCase() + "%"
+                        "%" + request.address().toLowerCase() + "%"
                 ));
             }
 
             // 3. Aktiflik Durumu
-            if (request.getActive() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("active"), request.getActive()));
+            if (request.active() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("active"), request.active()));
             } else {
                 // Varsayılan olarak sadece aktif işletmeleri göstermek istersen burayı açabilirsin:
                 // predicates.add(criteriaBuilder.isTrue(root.get("active")));

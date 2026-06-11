@@ -2,19 +2,16 @@ package RandevuApp.domain.auth.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
 
-@Data
-public class ResetPasswordRequest {
+public record ResetPasswordRequest(
+        @NotEmpty
+        String resetToken,
 
-    @NotEmpty
-    private String token;
+        @NotEmpty
+        @Size(min = 8, max = 64, message = "Password must be between 8 and 64 characters")
+        String newPassword,
 
-    @NotEmpty
-    @Size(min = 8, max = 64, message = "Şifre en az 8 karakter olmalıdır")
-    private String newPassword;
-
-    @NotEmpty
-    @Size(min = 8, max = 64, message = "Şifre en az 8 karakter olmalıdır")
-    private String confirmNewPassword;
-}
+        @NotEmpty
+        @Size(min = 8, max = 64, message = "Password must be between 8 and 64 characters")
+        String confirmNewPassword
+) {}

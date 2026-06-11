@@ -1,18 +1,16 @@
 package RandevuApp.domain.business.dto;
 
 import lombok.Builder;
-import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Data
 @Builder
-public class ScheduleOverrideResponse {
-    private Long id;
-    private LocalDate targetDate;
-    private Boolean isClosed;
-    private LocalTime openTime;
-    private LocalTime closeTime;
-    private String reason;
-}
+public record ScheduleOverrideResponse(
+        Long id,
+        LocalDate targetDate,
+        Boolean isClosed,
+        LocalTime openTime,
+        LocalTime closeTime,
+        String reason
+) {}

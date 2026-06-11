@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidPhone {
 
-    String message() default "Geçersiz telefon numarası formatı. Geçerli karakterler: rakamlar, boşluk, +, -, (, )";
+    String message() default "Invalid phone number format. Valid chars: digits (0-9), space, ., +, -, (, )";
 
     Class<?>[] groups() default {};
 

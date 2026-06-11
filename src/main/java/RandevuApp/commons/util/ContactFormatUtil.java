@@ -4,12 +4,11 @@ import java.util.regex.Pattern;
 
 public final class ContactFormatUtil {
 
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$"
-    );
-    private static final Pattern PHONE_PATTERN = Pattern.compile(
-            "^\\+?[0-9. ()-]{7,25}$"
-    );
+    public static final String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]++(?:\\.[a-zA-Z0-9_+&*-]++)*+@(?:[a-zA-Z0-9-]++\\.)++[a-zA-Z]{2,7}$";
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
+
+    public static final String PHONE_REGEX = "^\\+?[0-9. ()-]{7,25}$";
+    private static final Pattern PHONE_PATTERN = Pattern.compile(PHONE_REGEX);
 
     private ContactFormatUtil() { }
 

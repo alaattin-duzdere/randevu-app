@@ -10,7 +10,7 @@ public interface IAuthService {
 
     RefreshResponse refresh(RefreshRequest refreshRequest);
 
-    String logout(String token);
+    void logout(String token);
 
-    void resendVerification(String identifier);
+    void resendVerification(ResendVerificationRequest request);
 }

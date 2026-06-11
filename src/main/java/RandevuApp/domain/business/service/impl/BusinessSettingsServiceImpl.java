@@ -46,8 +46,8 @@ public class BusinessSettingsServiceImpl implements IBusinessSettingsService {
         Business business = businessDomainService.getById(businessId);
         BusinessSettings settings = business.getBusinessSettings();
 
-        if (request.getSlotDurationTime() != null) {
-            settings.setSlotDurationTime(request.getSlotDurationTime());
+        if (request.slotDurationTime() != null) {
+            settings.setSlotDurationTime(request.slotDurationTime());
         }
 
         businessDomainService.save(business);

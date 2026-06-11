@@ -28,20 +28,20 @@ public class TimeOffMapper {
             return;
         }
 
-        if (dto.getStartTime() != null) {
-            entity.setStartTime(dto.getStartTime());
+        if (dto.startTime() != null) {
+            entity.setStartTime(dto.startTime());
         }
 
-        if (dto.getEndTime() != null) {
-            entity.setEndTime(dto.getEndTime());
+        if (dto.endTime() != null) {
+            entity.setEndTime(dto.endTime());
         }
 
-        if (dto.getType() != null) {
-            entity.setType(dto.getType());
+        if (dto.type() != null) {
+            entity.setType(dto.type());
         }
 
-        if (dto.getNote() != null) {
-            entity.setNote(dto.getNote());
+        if (dto.note() != null) {
+            entity.setNote(dto.note());
         }
     }
 }

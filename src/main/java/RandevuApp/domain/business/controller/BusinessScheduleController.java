@@ -38,7 +38,7 @@ public class BusinessScheduleController {
             @Valid @RequestBody UpdateOperatingHoursRequest request) {
 
         Long ownerId = getCurrentUserId();
-        return scheduleService.updateOperatingHours(businessId, request.getOperatingHours(), ownerId);
+        return scheduleService.updateOperatingHours(businessId, request.operatingHours(), ownerId);
     }
 
     // OVERRIDES

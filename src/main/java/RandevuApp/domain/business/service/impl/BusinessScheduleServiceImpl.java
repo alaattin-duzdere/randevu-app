@@ -52,13 +52,13 @@ public class BusinessScheduleServiceImpl implements IBusinessScheduleService {
         for (BusinessOperatingHour existingHour : existingHours) {
 
             OperatingHourDto matchingRequest = requests.stream()
-                    .filter(req -> req.getDayOfWeek() == existingHour.getDayOfWeek())
+                    .filter(req -> req.dayOfWeek() == existingHour.getDayOfWeek())
                     .findFirst()
                     .orElseThrow(() -> new InvalidInputException("Missing data for day: " + existingHour.getDayOfWeek()));
 
-            existingHour.setClosed(matchingRequest.getIsClosed());
-            existingHour.setOpenTime(matchingRequest.getOpenTime());
-            existingHour.setCloseTime(matchingRequest.getCloseTime());
+            existingHour.setClosed(matchingRequest.isClosed());
+            existingHour.setOpenTime(matchingRequest.openTime());
+            existingHour.setCloseTime(matchingRequest.closeTime());
 
             scheduleDomainService.validateTimes(existingHour.isClosed(), existingHour.getOpenTime(), existingHour.getCloseTime());
         }
@@ -76,15 +76,15 @@ public class BusinessScheduleServiceImpl implements IBusinessScheduleService {
         Business business = businessDomainService.getById(businessId);
         businessDomainService.validateBusinessOwner(business, ownerId);
 
-        scheduleDomainService.validateTimes(request.getIsClosed(), request.getOpenTime(), request.getCloseTime());
+        scheduleDomainService.validateTimes(request.isClosed(), request.openTime(), request.closeTime());
 
         BusinessScheduleOverride newOverride = new BusinessScheduleOverride();
         newOverride.setBusiness(business);
-        newOverride.setTargetDate(request.getTargetDate());
-        newOverride.setClosed(request.getIsClosed());
-        newOverride.setOpenTime(request.getOpenTime());
-        newOverride.setCloseTime(request.getCloseTime());
-        newOverride.setReason(request.getReason());
+        newOverride.setTargetDate(request.targetDate());
+        newOverride.setClosed(request.isClosed());
+        newOverride.setOpenTime(request.openTime());
+        newOverride.setCloseTime(request.closeTime());
+        newOverride.setReason(request.reason());
 
         BusinessScheduleOverride savedOverride = scheduleDomainService.saveOverride(newOverride);
         return mapper.toOverrideResponse(savedOverride);

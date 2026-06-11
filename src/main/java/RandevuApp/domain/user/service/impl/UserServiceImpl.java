@@ -60,10 +60,10 @@ public class UserServiceImpl implements IUserService {
     public UserResponse updateCurrentUserProfile(Long userId,UpdateUserRequest request) {
         User user = userDomainService.findUserById(userId);
 
-        user.setAddress(request.getAddress());
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setGender(request.getGender());
+        user.setAddress(request.address());
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setGender(request.gender());
 
         userDomainService.saveUser(user);
         return userMapper.userToUserResponse(user);
@@ -74,25 +74,25 @@ public class UserServiceImpl implements IUserService {
     public void changePassword(Long userId, ChangePasswordRequest request) {
         User user = userDomainService.findUserById(userId);
 
-        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())){
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())){
             throw new PasswordMismatchException("Current password is incorrect.");
         }
 
-        if (!request.getNewPassword().equals(request.getConfirmNewPassword())){
+        if (!request.newPassword().equals(request.confirmNewPassword())){
             throw new PasswordMismatchException("New passwords do not match.");
         }
 
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
         userDomainService.saveUser(user);
     }
 
     @Override
     @Transactional
     public void initiatePhoneChange(Long userId, PhoneChangeInitiateRequest request) {
-        String newPhoneNumber = request.getNewPhoneNumber();
+        String newPhoneNumber = request.newPhoneNumber();
         User user = userDomainService.findUserById(userId);
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+        if (!passwordEncoder.matches(request.password(), user.getPassword())){
             throw new PasswordMismatchException("Incorrect password");
         }
 
@@ -147,10 +147,10 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public void initiateEmailChange(Long userId, EmailChangeInitiateRequest request) {
-        String newEmail = request.getNewEmail();
+        String newEmail = request.newEmail();
         User user = userDomainService.findUserById(userId);
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+        if (!passwordEncoder.matches(request.password(), user.getPassword())){
             throw new PasswordMismatchException("Incorrect password");
         }
 

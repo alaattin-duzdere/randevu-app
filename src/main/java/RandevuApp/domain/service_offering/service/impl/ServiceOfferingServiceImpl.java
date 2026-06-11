@@ -36,14 +36,14 @@ public class ServiceOfferingServiceImpl implements IServiceOfferingService {
         Business business = getBusinessAndValidateOwner(businessId, ownerId);
 
         // validate service name
-        serviceOfferingDomainService.validateServiceNameIsUniqueForBusiness(businessId, request.getName());
+        serviceOfferingDomainService.validateServiceNameIsUniqueForBusiness(businessId, request.name());
 
         // create entity
         CreateServiceOfferingParams params = new CreateServiceOfferingParams(
-                request.getName(),
-                request.getDescription(),
-                request.getDurationInMinutes(),
-                request.getPrice(),
+                request.name(),
+                request.description(),
+                request.durationInMinutes(),
+                request.price(),
                 business
         );
         ServiceOffering serviceOffering = serviceOfferingDomainService.createEntity(params, business);
@@ -102,16 +102,16 @@ public class ServiceOfferingServiceImpl implements IServiceOfferingService {
         ServiceOffering serviceOffering = serviceOfferingDomainService.getByIdAndBusinessId(serviceId, businessId);
 
         // unique check for service name change
-        if (request.getName() != null && !request.getName().equals(serviceOffering.getName())) {
-            serviceOfferingDomainService.validateServiceNameIsUniqueForBusiness(businessId, request.getName());
+        if (request.name() != null && !request.name().equals(serviceOffering.getName())) {
+            serviceOfferingDomainService.validateServiceNameIsUniqueForBusiness(businessId, request.name());
         }
 
         UpdateServiceOfferingParams params = new UpdateServiceOfferingParams(
-                request.getName(),
-                request.getDescription(),
-                request.getDurationInMinutes(),
-                request.getPrice(),
-                request.getActive()
+                request.name(),
+                request.description(),
+                request.durationInMinutes(),
+                request.price(),
+                request.active()
         );
 
         ServiceOffering updatedService = serviceOfferingDomainService.performUpdate(serviceOffering, params);

@@ -79,8 +79,8 @@ public class AdminBusinessServiceImpl implements IAdminBusinessService {
 
         Address address = business.getAddress();
         // Address Update Check
-        if (request.getAddress() != null && !request.getAddress().getExternalLocationId().equals(business.getAddress().getExternalLocationId())) {
-            GeoLocationResult geoLocationResult = geocodingPort.getPlaceDetailsById(request.getAddress().getExternalLocationId())
+        if (request.address() != null && !request.address().externalLocationId().equals(business.getAddress().getExternalLocationId())) {
+            GeoLocationResult geoLocationResult = geocodingPort.getPlaceDetailsById(request.address().externalLocationId())
                     .orElseThrow(() -> new InvalidInputException("Invalid address location ID."));
 
             address = businessMapper.geoLocationResultToAddress(geoLocationResult);
@@ -88,10 +88,10 @@ public class AdminBusinessServiceImpl implements IAdminBusinessService {
 
         // Update Business
         UpdateBusinessParams params = new UpdateBusinessParams(
-                request.getName(),
-                request.getDescription(),
-                request.getTimeZone(),
-                request.getActive()
+                request.name(),
+                request.description(),
+                request.timeZone(),
+                request.active()
         );
         Business updatedBusiness = businessDomainService.performUpdateBusiness(business, params, address);
 

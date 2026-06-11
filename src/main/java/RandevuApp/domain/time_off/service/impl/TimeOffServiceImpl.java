@@ -33,16 +33,16 @@ public class TimeOffServiceImpl implements ITimeOffService {
     public TimeOffResponse createTimeOff(Long businessId, Long staffId, CreateTimeOffRequest request, Long ownerId) {
         Staff staff = getStaffAndValidateAccess(businessId, staffId, ownerId);
 
-        timeOffDomainService.validateDates(request.getStartTime(), request.getEndTime());
+        timeOffDomainService.validateDates(request.startTime(), request.endTime());
 
-        timeOffDomainService.validateNoOverlap(staffId, request.getStartTime(), request.getEndTime(), null);
+        timeOffDomainService.validateNoOverlap(staffId, request.startTime(), request.endTime(), null);
 
         CreateTimeOffParams params = new CreateTimeOffParams(
                 staff,
-                request.getStartTime(),
-                request.getEndTime(),
-                request.getType(),
-                request.getNote()
+                request.startTime(),
+                request.endTime(),
+                request.type(),
+                request.note()
         );
         TimeOff timeOff = timeOffDomainService.createEntity(params);
 
