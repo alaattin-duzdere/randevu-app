@@ -12,14 +12,13 @@ public class BusinessScheduleMapper {
 
     public OperatingHourDto toOperatingHourDto(BusinessOperatingHour entity) {
         if (entity == null) return null;
-
-        OperatingHourDto dto = new OperatingHourDto();
-        dto.setId(entity.getId());
-        dto.setDayOfWeek(entity.getDayOfWeek());
-        dto.setIsClosed(entity.isClosed());
-        dto.setOpenTime(entity.getOpenTime());
-        dto.setCloseTime(entity.getCloseTime());
-        return dto;
+        return new OperatingHourDto(
+                entity.getId(),
+                entity.getDayOfWeek(),
+                entity.isClosed(),
+                entity.getOpenTime(),
+                entity.getCloseTime()
+        );
     }
 
     public ScheduleOverrideResponse toOverrideResponse(BusinessScheduleOverride entity) {
@@ -37,13 +36,12 @@ public class BusinessScheduleMapper {
 
     public void updateOverrideFromDto(ScheduleOverrideRequest dto, BusinessScheduleOverride entity) {
         if (dto == null || entity == null) return;
+        if (dto.targetDate() != null) entity.setTargetDate(dto.targetDate());
+        if (dto.isClosed() != null) entity.setClosed(dto.isClosed());
 
-        if (dto.getTargetDate() != null) entity.setTargetDate(dto.getTargetDate());
-        if (dto.getIsClosed() != null) entity.setClosed(dto.getIsClosed());
+        entity.setOpenTime(dto.openTime());
+        entity.setCloseTime(dto.closeTime());
 
-        entity.setOpenTime(dto.getOpenTime());
-        entity.setCloseTime(dto.getCloseTime());
-
-        if (dto.getReason() != null) entity.setReason(dto.getReason());
+        if (dto.reason() != null) entity.setReason(dto.reason());
     }
 }

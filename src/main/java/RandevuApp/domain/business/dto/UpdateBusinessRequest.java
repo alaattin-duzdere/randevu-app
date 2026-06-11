@@ -4,23 +4,19 @@ import RandevuApp.commons.validator.ValidTimeZone;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-public class UpdateBusinessRequest {
-    @NotBlank(message = "Business name cannot be empty")
-    private String name;
+public record UpdateBusinessRequest(
+        @NotBlank(message = "Business name cannot be empty") String name,
 
-    @NotNull(message = "Address details are required")
-    @Valid
-    private AddressDto address;
+        @NotNull(message = "Address details are required") @Valid AddressDto address,
 
-    private String description;
+        String description,
 
-    @ValidTimeZone
-    private String timeZone;
+        @ValidTimeZone String timeZone,
 
-    private Boolean active = true; // this field is optional, maybe you can create another endpoint for this field
+        Boolean active
+) {
+    public UpdateBusinessRequest {
+        if (active == null) active = true;
+    }
 }

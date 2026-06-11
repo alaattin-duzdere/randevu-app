@@ -64,12 +64,12 @@ public class BusinessServiceImp implements IBusinessService {
         }
 
         // Slug check
-        if (businessDomainService.existsBySlug(request.getSlug())) {
-            throw new ConflictException("Business with slug '" + request.getSlug() + "' already exists.");
+        if (businessDomainService.existsBySlug(request.slug())) {
+            throw new ConflictException("Business with slug '" + request.slug() + "' already exists.");
         }
 
         // Address Validation & Geocoding
-        GeoLocationResult geoLocationResult = geocodingPort.getPlaceDetailsById(request.getAddress().getExternalLocationId())
+        GeoLocationResult geoLocationResult = geocodingPort.getPlaceDetailsById(request.address().getExternalLocationId())
                 .orElseThrow(() -> new InvalidInputException("Invalid address location ID."));
 
         Address address = businessMapper.geoLocationResultToAddress(geoLocationResult);
@@ -79,11 +79,11 @@ public class BusinessServiceImp implements IBusinessService {
 
         // Create business entity
         CreateBusinessParams param = new CreateBusinessParams(
-                request.getName(),
+                request.name(),
                 address,
-                request.getDescription(),
-                request.getTimeZone(),
-                request.getSlug()
+                request.description(),
+                request.timeZone(),
+                request.slug()
         );
 
         Business business = businessDomainService.createBusinessEntity(
@@ -138,8 +138,8 @@ public class BusinessServiceImp implements IBusinessService {
 
         Address address = business.getAddress();
         // Address Update Check
-        if (request.getAddress() != null && !request.getAddress().getExternalLocationId().equals(business.getAddress().getExternalLocationId())) {
-            GeoLocationResult geoLocationResult = geocodingPort.getPlaceDetailsById(request.getAddress().getExternalLocationId())
+        if (request.address() != null && !request.address().externalLocationId().equals(business.getAddress().getExternalLocationId())) {
+            GeoLocationResult geoLocationResult = geocodingPort.getPlaceDetailsById(request.address().externalLocationId())
                     .orElseThrow(() -> new InvalidInputException("Invalid address location ID."));
 
             address = businessMapper.geoLocationResultToAddress(geoLocationResult);
@@ -147,10 +147,10 @@ public class BusinessServiceImp implements IBusinessService {
 
         // Update Business
         UpdateBusinessParams params = new UpdateBusinessParams(
-                request.getName(),
-                request.getDescription(),
-                request.getTimeZone(),
-                request.getActive()
+                request.name(),
+                request.description(),
+                request.timeZone(),
+                request.active()
         );
         Business updatedBusiness = businessDomainService.performUpdateBusiness(business, params, address);
 

@@ -22,40 +22,49 @@ public class BusinessMapper {
     }
 
     public BusinessResponse businessToBusinessResponse(Business business) {
-        BusinessResponse response = new BusinessResponse();
+        // Build immutable BusinessResponse record from Business entity
+        BusinessSettings businessSettings = business.getBusinessSettings();
+        if (businessSettings != null) businessSettings.setBusiness(business); // null prevention (preserve previous behavior)
 
-        BeanUtils.copyProperties(business, response);
+        BusinessSettingsResponse businessSettingsResponse = businessSettings == null ? null
+                : businessSettingsToBusinessSettingsResponse(businessSettings);
 
-        response.setOwner(userMapper.userToUserResponse(business.getOwner()));
-        response.setStaffList(business.getStaffList());
-        response.setServiceList(business.getServiceList());
-        response.setAddress(business.getAddress());
-
-        business.getBusinessSettings().setBusiness(business); // null prevention
-        BusinessSettingsResponse businessSettingsResponse = businessSettingsToBusinessSettingsResponse(business.getBusinessSettings());
-
-        response.setBusinessSettings(businessSettingsResponse);
-        return response;
+        return new BusinessResponse(
+                business.getId(),
+                business.getName(),
+                business.getAddress(),
+                business.getSlug(),
+                business.getTimeZone(),
+                business.getDescription(),
+                business.isActive(),
+                userMapper.userToUserResponse(business.getOwner()),
+                businessSettingsResponse,
+                business.getStaffList(),
+                business.getServiceList()
+        );
     }
 
 
     public BusinessSettingsResponse businessSettingsToBusinessSettingsResponse(BusinessSettings businessSettings) {
-        BusinessSettingsResponse response = new BusinessSettingsResponse();
-        BeanUtils.copyProperties(businessSettings, response);
-
-        response.setBusinessId(businessSettings.getBusiness().getId());
-        return response;
+        // BusinessSettings model currently only holds slotDurationTime and business relation.
+        Long businessId = businessSettings.getBusiness() != null ? businessSettings.getBusiness().getId() : null;
+        return new BusinessSettingsResponse(
+                businessSettings.getSlotDurationTime(),
+                null,
+                null,
+                businessId
+        );
     }
 
     public Address geoLocationResultToAddress(GeoLocationResult geoLocationResult) {
         return Address.builder()
-                .city(geoLocationResult.getCity())
-                .district(geoLocationResult.getDistrict())
-                .fullAddress(geoLocationResult.getFormattedAddress())
-                .latitude(geoLocationResult.getLatitude())
-                .longitude(geoLocationResult.getLongitude())
-                .provider(geoLocationResult.getProvider())
-                .externalLocationId(geoLocationResult.getExternalLocationId())
+                .city(geoLocationResult.city())
+                .district(geoLocationResult.district())
+                .fullAddress(geoLocationResult.formattedAddress())
+                .latitude(geoLocationResult.latitude())
+                .longitude(geoLocationResult.longitude())
+                .provider(geoLocationResult.provider())
+                .externalLocationId(geoLocationResult.externalLocationId())
                 .build();
     }
 }
