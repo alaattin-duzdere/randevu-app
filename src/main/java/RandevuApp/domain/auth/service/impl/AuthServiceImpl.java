@@ -59,16 +59,16 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     @Transactional
     public void register(RegisterRequest request) {
-        log.info("Registering new user with email: {}", request.getEmail());
+        log.info("Registering new user with email: {}", request.email());
 
         CreateUserParams createUserParams = new CreateUserParams(
-                request.getEmail(),
-                request.getPhoneNumber(),
-                request.getFirstName(),
-                request.getLastName(),
-                request.getGender(), request.getAddress());
+                request.email(),
+                request.phoneNumber(),
+                request.firstName(),
+                request.lastName(),
+                request.gender(), request.address());
 
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        String encodedPassword = passwordEncoder.encode(request.password());
 
         // 1. Create and save User via UserDomainService
         User user = userDomainService.createNewUser(createUserParams,encodedPassword);
@@ -85,18 +85,20 @@ public class AuthServiceImpl implements IAuthService {
 
         verificationService.startVerification(verificationRequest);
 
-        log.info("User registered successfully. Verification SMS sent to: {}", request.getPhoneNumber());
+        log.info("User registered successfully. Verification SMS sent to: {}", request.phoneNumber());
     }
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        log.info("Login request received for identifier: {}", loginRequest.getIdentifier());
+        String identifier = loginRequest.identifier();
+
+        log.info("Login request received for identifier: {}", loginRequest.identifier());
 
         // 1. Find User (Email or Phone)
-        User user = userDomainService.findUserByIdentifier(loginRequest.getIdentifier());
+        User user = userDomainService.findUserByIdentifier(loginRequest.identifier());
 
         // 2. Check Password
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
             throw new InvalidCredentialsException("Invalid email/phone or password");
         }
 
@@ -127,14 +129,16 @@ public class AuthServiceImpl implements IAuthService {
 
     @Override
     public RefreshResponse refresh(RefreshRequest refreshRequest) {
-        Optional<RefreshToken> optRefreshToken = refreshTokenRepository.findByRefreshToken(refreshRequest.getRefreshToken());
+        String refreshToken = refreshRequest.refreshToken();
+
+        Optional<RefreshToken> optRefreshToken = refreshTokenRepository.findByRefreshToken(refreshToken);
 
         if (optRefreshToken.isEmpty()){
-            throw  new InvalidTokenException("Refresh token not found: " + refreshRequest.getRefreshToken());
+            throw  new InvalidTokenException("Refresh token not found: " + refreshToken);
         }
         if (!isValidRefreshToken(optRefreshToken.get().getExpiredDate())){
             refreshTokenRepository.delete(optRefreshToken.get()); // Expired token should be deleted
-            throw new ExpiredTokenException("Refresh token has expired: " + refreshRequest.getRefreshToken());
+            throw new ExpiredTokenException("Refresh token has expired: " + refreshToken);
         }
 
         // Generate new access token
@@ -157,20 +161,20 @@ public class AuthServiceImpl implements IAuthService {
 
     @Override
     @Transactional
-    public String logout(String token) {
+    public void logout(String token) {
 
         long expirationMillis = jwtService.getRemainingExpirationMillis(token);
 
         refreshTokenRepository.deleteByUserId(Long.parseLong(jwtService.extractIdentifier(token)));
 
         blacklistService.blacklistToken(jwtService.extractClaim(token,Claims::getId), expirationMillis);
-
-        return "User logout successful";
     }
 
     @Override
     @Transactional
-    public void resendVerification(String identifier) {
+    public void resendVerification(ResendVerificationRequest request) {
+        String identifier = request.identifier();
+
         log.info("Resend verification request received for: {}", identifier);
 
         User user = userDomainService.findUserByIdentifier(identifier);

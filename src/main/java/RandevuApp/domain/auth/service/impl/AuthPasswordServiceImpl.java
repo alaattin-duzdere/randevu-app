@@ -1,5 +1,6 @@
 package RandevuApp.domain.auth.service.impl;
 
+import RandevuApp.commons.util.ContactFormatUtil;
 import RandevuApp.domain.auth.dto.ResetPasswordRequest;
 import RandevuApp.domain.auth.model.PasswordResetToken;
 import RandevuApp.domain.auth.repository.PasswordResetTokenRepository;
@@ -13,23 +14,13 @@ import RandevuApp.exceptions.client.InvalidInputException;
 import RandevuApp.exceptions.client.PasswordMismatchException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.regex.Pattern;
-
 @Service
 @Slf4j
 public class AuthPasswordServiceImpl implements IAuthPasswordService {
-
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$"
-    );
-    private static final Pattern PHONE_PATTERN = Pattern.compile(
-            "^\\+?[0-9. ()-]{7,25}$"
-    );
 
     private final IPasswordResetStrategy linkStrategy;
     private final IPasswordResetStrategy smsStrategy;
@@ -50,11 +41,11 @@ public class AuthPasswordServiceImpl implements IAuthPasswordService {
     }
 
     @Override
-    public String forgotPassword(String recipient) {
-        if (isValidEmail(recipient)) {
-            return linkStrategy.sendResetToken(recipient);
-        } else if (isValidPhoneNumber(recipient)) {
-            return smsStrategy.sendResetToken(recipient);
+    public void forgotPassword(String recipient) {
+        if (ContactFormatUtil.isEmail(recipient)) {
+            linkStrategy.sendResetToken(recipient);
+        } else if (ContactFormatUtil.isPhone(recipient)) {
+            smsStrategy.sendResetToken(recipient);
         } else {
             throw new InvalidInputException("Invalid email or phone number format.");
         }
@@ -62,10 +53,10 @@ public class AuthPasswordServiceImpl implements IAuthPasswordService {
 
     @Override
     @Transactional
-    public String resetPassword(ResetPasswordRequest resetPasswordRequest) {
-        log.warn("Resetting password for token: {}", resetPasswordRequest.getToken());
+    public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
+        log.warn("Resetting password for token: {}", resetPasswordRequest.resetToken());
 
-        PasswordResetToken resetToken = tokenRepository.findByToken(resetPasswordRequest.getToken())
+        PasswordResetToken resetToken = tokenRepository.findByToken(resetPasswordRequest.resetToken())
                 .orElseThrow(() -> new InvalidTokenException("Invalid password reset token"));
 
         if (resetToken.isExpired()) {
@@ -73,31 +64,16 @@ public class AuthPasswordServiceImpl implements IAuthPasswordService {
             throw new ExpiredTokenException("Password reset token has expired");
         }
 
-        if (!resetPasswordRequest.getNewPassword().equals(resetPasswordRequest.getConfirmNewPassword())){
+        if (!resetPasswordRequest.newPassword().equals(resetPasswordRequest.confirmNewPassword())){
             throw new PasswordMismatchException();
         }
 
         User user = resetToken.getUser();
-        user.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
+        user.setPassword(passwordEncoder.encode(resetPasswordRequest.newPassword()));
         userRepository.save(user);
 
         tokenRepository.delete(resetToken);
 
         log.warn("Password updated successfully for user: {}", user.getEmail());
-        return "Password reset successful";
-    }
-
-    private boolean isValidEmail(String email) {
-        if (email == null) {
-            return false;
-        }
-        return EMAIL_PATTERN.matcher(email).matches();
-    }
-
-    private boolean isValidPhoneNumber(String phone) {
-        if (phone == null) {
-            return false;
-        }
-        return PHONE_PATTERN.matcher(phone).matches();
     }
 }

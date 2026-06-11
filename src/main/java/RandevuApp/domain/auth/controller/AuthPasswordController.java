@@ -19,7 +19,7 @@ public class AuthPasswordController {
 
     @PostMapping("/forgot-password")
     public String forgotPassword(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
-        authService.forgotPassword(forgotPasswordRequest.getRecipient());
+        authService.forgotPassword(forgotPasswordRequest.phoneNumber());
         return "Password reset link has been sent to your email if it exists in our system.";
     }
 
