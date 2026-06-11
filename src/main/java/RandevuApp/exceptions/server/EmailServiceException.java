@@ -1,6 +1,6 @@
 package RandevuApp.exceptions.server;
 
-import RandevuApp.api.ApiStatus;
+import RandevuApp.api.ErrorCode;
 import RandevuApp.exceptions.BaseApiException;
 
 public class EmailServiceException extends BaseApiException {
@@ -11,10 +11,10 @@ public class EmailServiceException extends BaseApiException {
      * @param cause The original exception that was caught (e.g., MailException), for logging purposes.
      */
     public EmailServiceException(String message, Throwable cause) {
-        super(ApiStatus.ERROR_EMAIL_SERVICE_FAILURE, message, cause);
+        super(ErrorCode.ERROR_EMAIL_SERVICE_FAILURE, message, cause);
     }
 
     public EmailServiceException(String message) {
-        super(ApiStatus.ERROR_EMAIL_SERVICE_FAILURE,message);
+        super(ErrorCode.ERROR_EMAIL_SERVICE_FAILURE,message);
     }
 }

@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum ApiStatus {
+public enum ErrorCode {
 
     // --- SUCCESS CODES (2xx) ---
     SUCCESS_OK(HttpStatus.OK, "S200", "Operation completed successfully."),
@@ -15,6 +15,7 @@ public enum ApiStatus {
 
     // --- CLIENT ERROR CODES (4xx) ---
     // General Validation/Bad Request
+    VALIDATION_ERROR(HttpStatus.BAD_REQUEST,"E3001", "Validation failed."),
     ERROR_INVALID_INPUT(HttpStatus.BAD_REQUEST, "E400-GEN", "One or more input fields are invalid."),
     ERROR_PAYLOAD_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE,"UNKNOWN","Payload too large"),
     ERROR_UNSUPPORTED_FILE_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE,"UNKNOWN","Unsported file type"),
@@ -58,7 +59,7 @@ public enum ApiStatus {
     private final String code; // Your unique application status code
     private final String defaultMessage;
 
-    ApiStatus(HttpStatus httpStatus, String code, String defaultMessage) {
+    ErrorCode(HttpStatus httpStatus, String code, String defaultMessage) {
         this.httpStatus = httpStatus;
         this.code = code;
         this.defaultMessage = defaultMessage;

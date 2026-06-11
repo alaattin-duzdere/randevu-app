@@ -1,14 +1,14 @@
 package RandevuApp.exceptions.client;
 
-import RandevuApp.api.ApiStatus;
+import RandevuApp.api.ErrorCode;
 import RandevuApp.exceptions.BaseApiException;
 
 public class PasswordMismatchException extends BaseApiException {
     public PasswordMismatchException() {
-        super(ApiStatus.ERROR_PASSWORD_MISMATCH);
+        super(ErrorCode.ERROR_PASSWORD_MISMATCH);
     }
 
     public PasswordMismatchException(String message) {
-        super(ApiStatus.ERROR_PASSWORD_MISMATCH, message);
+        super(ErrorCode.ERROR_PASSWORD_MISMATCH, message);
     }
 }

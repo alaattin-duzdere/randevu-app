@@ -1,6 +1,6 @@
 package RandevuApp.domain.verification.service;
 
-import RandevuApp.api.ApiStatus;
+import RandevuApp.api.ErrorCode;
 import RandevuApp.config.VerificationProperties;
 import RandevuApp.domain.notification.model.NotificationCategory;
 import RandevuApp.domain.notification.model.NotificationRequest;
@@ -149,7 +149,7 @@ public class VerificationService {
 
         // Check attempt count
         if (entity.isMaxAttemptsReached(verificationProperties.getMaxAttempts())) {
-            throw new VerificationFailedException(ApiStatus.ERROR_TOO_MANY_ATTEMPTS, "Çok fazla hatalı deneme yapıldı. Lütfen yeni kod isteyin.");
+            throw new VerificationFailedException(ErrorCode.ERROR_TOO_MANY_ATTEMPTS, "Çok fazla hatalı deneme yapıldı. Lütfen yeni kod isteyin.");
         }
 
         try {

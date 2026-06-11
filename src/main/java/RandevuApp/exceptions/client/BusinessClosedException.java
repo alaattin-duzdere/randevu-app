@@ -1,15 +1,15 @@
 package RandevuApp.exceptions.client;
 
-import RandevuApp.api.ApiStatus;
+import RandevuApp.api.ErrorCode;
 import RandevuApp.exceptions.BaseApiException;
 
 public class BusinessClosedException extends BaseApiException {
 
     public BusinessClosedException(String message) {
-        super(ApiStatus.ERROR_CONFLICT, message);
+        super(ErrorCode.ERROR_CONFLICT, message);
     }
 
     public BusinessClosedException() {
-        super(ApiStatus.ERROR_CONFLICT, "İşletme bu tarihte kapalıdır.");
+        super(ErrorCode.ERROR_CONFLICT, "İşletme bu tarihte kapalıdır.");
     }
 }

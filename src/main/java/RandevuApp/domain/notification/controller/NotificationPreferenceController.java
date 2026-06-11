@@ -1,6 +1,5 @@
 package RandevuApp.domain.notification.controller;
 
-import RandevuApp.api.CustomResponseBody;
 import RandevuApp.domain.notification.dto.UpdateNotificationPreferenceRequest;
 import RandevuApp.domain.notification.dto.UserNotificationPreferenceDto;
 import RandevuApp.domain.notification.service.IUserNotificationPreferenceService;
@@ -19,16 +18,14 @@ public class NotificationPreferenceController {
     private final IUserNotificationPreferenceService preferenceService;
 
     @GetMapping
-    public CustomResponseBody<List<UserNotificationPreferenceDto>> getMyPreferences() {
-        List<UserNotificationPreferenceDto> preferences = preferenceService.getUserPreferences(SecurityUtils.getCurrentUserId());
-        return CustomResponseBody.ok(preferences,"Settings retrieved successfully");
+    public List<UserNotificationPreferenceDto> getMyPreferences() {
+        return preferenceService.getUserPreferences(SecurityUtils.getCurrentUserId());
     }
 
     @PutMapping
-    public CustomResponseBody<UserNotificationPreferenceDto> updatePreference(
+    public UserNotificationPreferenceDto updatePreference(
             @Valid @RequestBody UpdateNotificationPreferenceRequest request) {
         
-        UserNotificationPreferenceDto updatedPreference = preferenceService.updatePreference(SecurityUtils.getCurrentUserId(), request);
-        return CustomResponseBody.ok(updatedPreference,"Setting updated successfully");
+        return preferenceService.updatePreference(SecurityUtils.getCurrentUserId(), request);
     }
 }

@@ -1,6 +1,6 @@
 package RandevuApp.domain.verification.validator.filter;
 
-import RandevuApp.api.ApiStatus;
+import RandevuApp.api.ErrorCode;
 import RandevuApp.config.VerificationProperties;
 import RandevuApp.domain.user.model.User;
 import RandevuApp.domain.verification.model.VerificationRequest;
@@ -32,7 +32,7 @@ public class SpamProtectionFilter implements IVerificationFilter {
         }
 
         if (count != null && count > verificationProperties.getSpam().getMaxRequestsPerHour()) {
-            throw new VerificationFailedException(ApiStatus.ERROR_TOO_MANY_ATTEMPTS, "Too many verification attempts. Please try again later.");
+            throw new VerificationFailedException(ErrorCode.ERROR_TOO_MANY_ATTEMPTS, "Too many verification attempts. Please try again later.");
         }
     }
 }

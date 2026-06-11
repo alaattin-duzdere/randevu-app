@@ -6,7 +6,7 @@ import RandevuApp.domain.verification.model.VerificationType;
 import RandevuApp.domain.verification.service.VerificationService;
 import RandevuApp.exceptions.verification.VerificationPurposeException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,9 +16,9 @@ public class VerificationController {
 
     private final VerificationService verificationService;
 
-//    // A. DOĞRULAMA BAŞLATMA (Herkes için ortak)
 //    @PostMapping("/initiate")
-//    public ResponseEntity<Void> initiate(@RequestBody VerificationRequest request) {
+//    @ResponseStatus(Http.NO_CONTENT)
+//    public ResponseEntity<void> initiate(@RequestBody VerificationRequest request) {
 //        // Find user
 //        User user = userDomainService.findUserById(request.getUserId());
 //
@@ -26,21 +26,20 @@ public class VerificationController {
 //        filterChainManager.validateForController(request, user);
 //
 //        verificationService.startVerification(request);
-//        return ResponseEntity.ok().build();
 //    }
 
     @PostMapping("/confirm-code")
-    public ResponseEntity<String> confirmCode(@RequestBody CodeConfirmRequest request) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void confirmCode(@RequestBody CodeConfirmRequest request) {
         validateConfirmPurpose(request.getPurpose());
         verificationService.verify(request.getCode(), VerificationType.CODE, request.getUserId(), request.getPurpose());
-        return ResponseEntity.ok("Kod doğrulandı!");
     }
 
     @GetMapping("/confirm-link")
-    public ResponseEntity<String> confirmLink(@RequestParam("token") String token, @RequestParam("userId") Long userId, @RequestParam(value = "purpose", defaultValue = "GENERAL") VerificationPurpose purpose) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void confirmLink(@RequestParam("token") String token, @RequestParam("userId") Long userId, @RequestParam(value = "purpose", defaultValue = "GENERAL") VerificationPurpose purpose) {
         validateConfirmPurpose(purpose);
         verificationService.verify(token, VerificationType.LINK, userId, purpose);
-        return ResponseEntity.ok("Hesap doğrulandı!");
     }
 
     private void validateConfirmPurpose(VerificationPurpose purpose) {

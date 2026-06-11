@@ -1,7 +1,5 @@
 package RandevuApp.commons.controller;
 
-import RandevuApp.api.CustomResponseBody;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,11 +13,9 @@ import java.util.stream.Collectors;
 public class CommonController {
 
     @GetMapping("/timezones")
-    public ResponseEntity<CustomResponseBody<List<String>>> getAvailableTimeZones() {
-        List<String> zones = ZoneId.getAvailableZoneIds().stream()
+    public List<String> getAvailableTimeZones() {
+        return ZoneId.getAvailableZoneIds().stream()
                 .sorted()
                 .collect(Collectors.toList());
-
-        return ResponseEntity.ok(CustomResponseBody.ok(zones,"Timezones retrieved successfully"));
     }
 }

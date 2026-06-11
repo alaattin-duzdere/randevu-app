@@ -1,33 +1,33 @@
 package RandevuApp.exceptions;
 
-import RandevuApp.api.ApiStatus;
+import RandevuApp.api.ErrorCode;
 import lombok.Getter;
 
 @Getter
 public abstract class BaseApiException extends RuntimeException {
 
-    private final ApiStatus apiStatus;
+    private final ErrorCode errorCode;
 
-    public BaseApiException(ApiStatus apiStatus, String message) {
+    public BaseApiException(ErrorCode errorCode, String message) {
         super(message);
-        this.apiStatus = apiStatus;
+        this.errorCode = errorCode;
     }
 
     // Optional: for cases where no message is provided
-    public BaseApiException(ApiStatus apiStatus) {
-        super(apiStatus.getDefaultMessage());
-        this.apiStatus = apiStatus;
+    public BaseApiException(ErrorCode errorCode) {
+        super(errorCode.getDefaultMessage());
+        this.errorCode = errorCode;
     }
 
     // New constructor accepting a Throwable cause
-    public BaseApiException(ApiStatus apiStatus, Throwable cause) {
-        super(apiStatus.getDefaultMessage(), cause);
-        this.apiStatus = apiStatus;
+    public BaseApiException(ErrorCode errorCode, Throwable cause) {
+        super(errorCode.getDefaultMessage(), cause);
+        this.errorCode = errorCode;
     }
 
-    public BaseApiException(ApiStatus apiStatus, String message, Throwable cause) {
-        super(message != null ? message : apiStatus.getDefaultMessage(), cause);
-        this.apiStatus = apiStatus;
+    public BaseApiException(ErrorCode errorCode, String message, Throwable cause) {
+        super(message != null ? message : errorCode.getDefaultMessage(), cause);
+        this.errorCode = errorCode;
     }
 
 }

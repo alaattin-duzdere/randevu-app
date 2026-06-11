@@ -1,6 +1,5 @@
 package RandevuApp.domain.business.controller;
 
-import RandevuApp.api.CustomResponseBody;
 import RandevuApp.domain.business.dto.BusinessResponse;
 import RandevuApp.domain.business.dto.BusinessSearchRequest;
 import RandevuApp.domain.business.dto.UpdateBusinessRequest;
@@ -12,8 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,63 +24,48 @@ public class AdminBusinessController {
 
     private final IAdminBusinessService businessService;
 
-    // --- READ
     @GetMapping("/search")
-    public ResponseEntity<CustomResponseBody<Page<BusinessResponse>>> searchAllBusinesses(
+    public Page<BusinessResponse> searchAllBusinesses(
             @ModelAttribute BusinessSearchRequest searchRequest,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        Page<BusinessResponse> data = businessService.searchBusinesses(searchRequest, pageable);
-        return ResponseEntity.ok(CustomResponseBody.ok(data, "All businesses retrieved successfully (Admin view)"));
+        return businessService.searchBusinesses(searchRequest, pageable);
     }
 
-    // --- READ (Single by ID - Admin Check) ---
     @GetMapping("/{id}")
-    public ResponseEntity<CustomResponseBody<BusinessResponse>> getBusinessById(@PathVariable Long id) {
-        BusinessResponse data = businessService.getBusinessByIdForAdmin(id);
-        return ResponseEntity.ok(CustomResponseBody.ok(data, "Business details retrieved successfully"));
+    public BusinessResponse getBusinessById(@PathVariable Long id) {
+        return businessService.getBusinessByIdForAdmin(id);
     }
 
-    // --- READ (By Owner ID - Admin'in belirli bir kişinin işletmelerini görmesi) ---
     @GetMapping("/by-owner/{ownerId}")
-    public ResponseEntity<CustomResponseBody<List<BusinessResponse>>> getBusinessesByOwner(@PathVariable Long ownerId) {
-        List<BusinessResponse> data = businessService.getBusinessesByOwner(ownerId);
-
-        return ResponseEntity.ok(CustomResponseBody.ok(data, "Businesses retrieved successfully for owner: " + ownerId));
+    public List<BusinessResponse> getBusinessesByOwner(@PathVariable Long ownerId) {
+        return businessService.getBusinessesByOwner(ownerId);
     }
 
-    // 2. Silinenleri Getir (Geri Dönüşüm Kutusu)
     @GetMapping("/deleted")
-    public ResponseEntity<Page<BusinessResponse>> getDeletedBusinesses(
+    public Page<BusinessResponse> getDeletedBusinesses(
             @RequestParam(required = false) String query,
             @PageableDefault(sort = "updated_at", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        return ResponseEntity.ok(businessService.getDeletedBusinesses(query, pageable));
+        return businessService.getDeletedBusinesses(query, pageable);
     }
 
-    // --- UPDATE (Admin Override) ---
     @PutMapping("/{id}")
-    public ResponseEntity<CustomResponseBody<BusinessResponse>> updateBusinessByAdmin(
+    public BusinessResponse updateBusinessByAdmin(
             @PathVariable Long id,
             @Valid @RequestBody UpdateBusinessRequest request
     ) {
-        BusinessResponse data = businessService.updateBusinessByAdmin(id, request);
-
-        return ResponseEntity.ok(CustomResponseBody.ok(data, "Business updated by admin successfully"));
+        return businessService.updateBusinessByAdmin(id, request);
     }
 
-    // --- DELETE (Admin Force Delete) ---
     @DeleteMapping("/{id}")
-    public ResponseEntity<CustomResponseBody<Void>> deleteBusinessByAdmin(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteBusinessByAdmin(@PathVariable Long id) {
         businessService.deleteBusinessByAdmin(id);
-
-        return ResponseEntity.ok(CustomResponseBody.ok(null, "Business deleted by admin successfully"));
     }
 
-//    // 3. Opsiyonel: Geri Yükle
 //    @PutMapping("/{id}/restore")
-//    public ResponseEntity<Void> restoreBusiness(@PathVariable Long id) {
+//    public void restoreBusiness(@PathVariable Long id) {
 //        businessService.restoreBusiness(id);
-//        return ResponseEntity.ok().build();
 //    }
 }

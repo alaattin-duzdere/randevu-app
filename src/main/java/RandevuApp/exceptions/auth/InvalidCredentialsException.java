@@ -1,14 +1,14 @@
 package RandevuApp.exceptions.auth;
 
-import RandevuApp.api.ApiStatus;
+import RandevuApp.api.ErrorCode;
 import RandevuApp.exceptions.BaseApiException;
 
 public class InvalidCredentialsException extends BaseApiException {
     public InvalidCredentialsException() {
-        super(ApiStatus.ERROR_INVALID_CREDENTIALS);
+        super(ErrorCode.ERROR_INVALID_CREDENTIALS);
     }
 
     public InvalidCredentialsException(String message) {
-        super(ApiStatus.ERROR_INVALID_CREDENTIALS, message);
+        super(ErrorCode.ERROR_INVALID_CREDENTIALS, message);
     }
 }
