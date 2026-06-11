@@ -4,23 +4,12 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 
 import java.math.BigDecimal;
 
-@Data
-public class CreateServiceOfferingRequest {
-
-    @NotBlank(message = "Hizmet adı boş olamaz")
-    private String name;
-
-    private String description;
-
-    @NotNull(message = "Hizmet süresi belirtilmelidir")
-    @Min(value = 5, message = "Hizmet süresi en az 5 dakika olmalıdır")
-    private Integer durationInMinutes;
-
-    @NotNull(message = "Hizmet fiyatı belirtilmelidir")
-    @DecimalMin(value = "0.0", inclusive = true, message = "Fiyat 0'dan küçük olamaz")
-    private BigDecimal price;
-}
+public record CreateServiceOfferingRequest(
+        @NotBlank(message = "Service name must not be blank") String name,
+        String description,
+        @NotNull(message = "Service duration must be provided") @Min(value = 5, message = "Service duration must be at least 5 minutes") Integer durationInMinutes,
+        @NotNull(message = "Service price must be provided") @DecimalMin(value = "0.0", inclusive = true, message = "Price cannot be negative") BigDecimal price
+) {}

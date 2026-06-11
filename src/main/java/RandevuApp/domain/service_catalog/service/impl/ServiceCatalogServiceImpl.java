@@ -25,24 +25,24 @@ public class ServiceCatalogServiceImpl implements IServiceCatalogService {
     @Override
     @Transactional
     public ServiceCatalogResponse createCatalog(CreateServiceCatalogRequest request) {
-        log.info("Yeni hizmet kataloğu oluşturuluyor: {}", request.getName());
+        log.info("Creating new service catalog: {}", request.name());
 
-        // 1. İş Kuralı: İsim benzersiz mi?
-        catalogDomainService.validateCatalogNameIsUnique(request.getName());
+        // 1. Business rule: Is name unique?
+        catalogDomainService.validateCatalogNameIsUnique(request.name());
 
-        // 2. Entity'yi oluştur
+        // 2. Create entity
         CreateServiceCatalogParams params = new CreateServiceCatalogParams(
-                request.getName(),
-                request.getDescription(),
-                request.getDurationInMinutes(),
-                request.getPrice()
+                request.name(),
+                request.description(),
+                request.durationInMinutes(),
+                request.price()
         );
         ServiceCatalog catalog = catalogDomainService.createEntity(params);
 
-        // 3. Veritabanına kaydet
+        // 3. Save
         ServiceCatalog savedCatalog = catalogDomainService.save(catalog);
 
-        // 4. DTO'ya çevir ve dön
+        // 4. Map to DTO and return
         return mapToResponse(savedCatalog);
     }
 
@@ -55,17 +55,17 @@ public class ServiceCatalogServiceImpl implements IServiceCatalogService {
         ServiceCatalog catalog = catalogDomainService.getById(catalogId);
 
         // 2. İsim değişiyorsa benzersizlik kontrolü yap
-        if (request.getName() != null && !request.getName().equals(catalog.getName())) {
-            catalogDomainService.validateCatalogNameIsUnique(request.getName());
+        if (request.name() != null && !request.name().equals(catalog.getName())) {
+            catalogDomainService.validateCatalogNameIsUnique(request.name());
         }
 
-        // 3. Güncelleme işlemini uygula
+        // 3. Apply update
         UpdateServiceCatalogParams params = new UpdateServiceCatalogParams(
-                request.getName(),
-                request.getDescription(),
-                request.getDurationInMinutes(),
-                request.getPrice(),
-                request.getActive()
+                request.name(),
+                request.description(),
+                request.durationInMinutes(),
+                request.price(),
+                request.active()
         );
         ServiceCatalog updatedCatalog = catalogDomainService.performUpdate(catalog, params);
 
