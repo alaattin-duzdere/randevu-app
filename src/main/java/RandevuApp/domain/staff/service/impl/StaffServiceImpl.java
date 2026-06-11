@@ -41,24 +41,24 @@ public class StaffServiceImpl implements IStaffService {
     public StaffResponse createStaff(Long businessId, CreateStaffRequest request, Long ownerId) {
         Business business = getBusinessAndValidateOwner(businessId, ownerId);
 
-        staffDomainService.validateStaffContactUniqueForBusiness(businessId, request.getEmail(), request.getPhone());
+        staffDomainService.validateStaffContactUniqueForBusiness(businessId, request.email(), request.phone());
 
-        String colorCode = StringUtils.hasText(request.getColorCode()) ? request.getColorCode() : DEFAULT_COLOR_CODE;
+        String colorCode = StringUtils.hasText(request.colorCode()) ? request.colorCode() : DEFAULT_COLOR_CODE;
 
         Staff staff = staffDomainService.createEntity(
-                request.getName(),
-                request.getTitle(),
-                request.getEmail(),
-                request.getPhone(),
+                request.name(),
+                request.title(),
+                request.email(),
+                request.phone(),
                 colorCode,
-                request.getPhoto(),
+                request.photo(),
                 business
         );
 
         Staff savedStaff = staffDomainService.save(staff);
 
-        if (request.getServiceIds() != null && !request.getServiceIds().isEmpty()) {
-            assignServicesInternal(businessId, savedStaff, request.getServiceIds());
+        if (request.serviceIds() != null && !request.serviceIds().isEmpty()) {
+            assignServicesInternal(businessId, savedStaff, request.serviceIds());
             savedStaff = staffDomainService.save(savedStaff);
         }
 
@@ -72,19 +72,19 @@ public class StaffServiceImpl implements IStaffService {
 
         Staff staff = staffDomainService.getByIdAndBusinessId(staffId, businessId);
 
-        boolean emailChanged = request.getEmail() != null && !request.getEmail().equals(staff.getEmail());
-        boolean phoneChanged = request.getPhone() != null && !request.getPhone().equals(staff.getPhone());
+        boolean emailChanged = request.email() != null && !request.email().equals(staff.getEmail());
+        boolean phoneChanged = request.phone() != null && !request.phone().equals(staff.getPhone());
 
         // email / phone change
         if (emailChanged || phoneChanged) {
-            String emailToCheck = emailChanged ? request.getEmail() : null;
-            String phoneToCheck = phoneChanged ? request.getPhone() : null;
+            String emailToCheck = emailChanged ? request.email() : null;
+            String phoneToCheck = phoneChanged ? request.phone() : null;
             staffDomainService.validateStaffContactUniqueForBusiness(businessId, emailToCheck, phoneToCheck);
         }
 
         // service offerings change
-        if (request.getServiceIds() != null) {
-            assignServicesInternal(businessId, staff, request.getServiceIds());
+        if (request.serviceIds() != null) {
+            assignServicesInternal(businessId, staff, request.serviceIds());
         }
 
         mapper.updateStaffFromDto(request, staff);

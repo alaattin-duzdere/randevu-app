@@ -35,26 +35,26 @@ public class StaffMapper {
     }
 
     public void updateStaffFromDto(UpdateStaffRequest request, Staff staff) {
-        if (request.getName() != null) {
-            staff.setName(request.getName());
+        if (request.name() != null) {
+            staff.setName(request.name());
         }
-        if (request.getTitle() != null) {
-            staff.setTitle(request.getTitle());
+        if (request.title() != null) {
+            staff.setTitle(request.title());
         }
-        if (request.getEmail() != null) {
-            staff.setEmail(request.getEmail());
+        if (request.email() != null) {
+            staff.setEmail(request.email());
         }
-        if (request.getPhone() != null) {
-            staff.setPhone(request.getPhone());
+        if (request.phone() != null) {
+            staff.setPhone(request.phone());
         }
-        if (request.getColorCode() != null) {
-            staff.setColorCode(request.getColorCode());
+        if (request.colorCode() != null) {
+            staff.setColorCode(request.colorCode());
         }
-        if (request.getPhoto() != null) {
-            staff.setPhoto(request.getPhoto());
+        if (request.photo() != null) {
+            staff.setPhoto(request.photo());
         }
-        if (request.getActive() != null) {
-            staff.setActive(request.getActive());
+        if (request.active() != null) {
+            staff.setActive(request.active());
         }
     }
 }
