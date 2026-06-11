@@ -3,23 +3,17 @@ package RandevuApp.domain.time_off.dto;
 import RandevuApp.domain.time_off.model.TimeOffType;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Data
-public class CreateTimeOffRequest {
+public record CreateTimeOffRequest(
+        @NotNull(message = "Start time must not be null")
+        @FutureOrPresent(message = "Cannot create time off in the past") LocalDateTime startTime,
 
-    @NotNull(message = "Başlangıç zamanı boş olamaz")
-    @FutureOrPresent(message = "Geçmişe dönük izin oluşturulamaz")
-    private LocalDateTime startTime;
+        @NotNull(message = "End time must not be null")
+        @FutureOrPresent(message = "Cannot create time off in the past") LocalDateTime endTime,
 
-    @NotNull(message = "Bitiş zamanı boş olamaz")
-    @FutureOrPresent(message = "Geçmişe dönük izin oluşturulamaz")
-    private LocalDateTime endTime;
+        @NotNull(message = "Time off type must be provided") TimeOffType type,
 
-    @NotNull(message = "İzin tipi seçilmelidir")
-    private TimeOffType type;
-
-    private String note;
-}
+        String note
+) {}
