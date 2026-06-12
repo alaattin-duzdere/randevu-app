@@ -3,9 +3,7 @@ package RandevuApp.domain.verification.repository;
 import RandevuApp.domain.verification.model.VerificationEntity;
 import RandevuApp.domain.verification.model.VerificationPurpose;
 import RandevuApp.domain.verification.model.VerificationType;
-import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,10 +22,13 @@ public interface VerificationTokenRepository extends JpaRepository<VerificationE
 
     Optional<VerificationEntity> findTopByUserIdAndTypeAndPurposeAndConfirmedAtIsNullOrderByExpiresAtDesc(Long userId, VerificationType type, VerificationPurpose purpose);
 
+    Optional<VerificationEntity> findTopByReferenceIdAndTypeAndPurposeAndConfirmedAtIsNullOrderByExpiresAtDesc(String referenceId, VerificationType type, VerificationPurpose purpose);
+
     // Old zombies delete when new token come
     void deleteByUserIdAndTypeAndPurposeAndConfirmedAtIsNull(Long userId, VerificationType type, VerificationPurpose purpose);
+    void deleteByReferenceIdAndTypeAndPurposeAndConfirmedAtIsNull(String referenceId, VerificationType type, VerificationPurpose purpose);
 
-    // super-duper amazing fantastic query
+    // super duper amazing fantastic query
     @Modifying(clearAutomatically = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Query("UPDATE VerificationEntity v SET v.attemptCount = v.attemptCount + 1 WHERE v.id = :id")

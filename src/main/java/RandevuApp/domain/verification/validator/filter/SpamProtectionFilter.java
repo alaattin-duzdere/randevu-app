@@ -22,17 +22,21 @@ public class SpamProtectionFilter implements IVerificationFilter {
 
     @Override
     public void validate(VerificationRequest request, User user) {
-        String key = "verification:spam:" + user.getId() + ":" + request.getPurpose();
-        
+        String spamActorIdentifier = (user != null)
+                ? user.getId().toString()
+                : request.getReferenceId();
+
+        String key = "verification:spam:" + spamActorIdentifier + ":" + request.getPurpose();
+
         Long count = redisTemplate.opsForValue().increment(key);
-        
+
         if (count != null && count == 1) {
             // Set expiration for the first request
             redisTemplate.expire(key, Duration.ofMinutes(verificationProperties.getSpam().getBlockDurationMinutes()));
         }
 
         if (count != null && count > verificationProperties.getSpam().getMaxRequestsPerHour()) {
-            throw new VerificationFailedException(ErrorCode.ERROR_TOO_MANY_ATTEMPTS, "Too many verification attempts. Please try again later.");
+            throw new VerificationFailedException("Too many attempts. Please try again later.");
         }
     }
 }

@@ -29,7 +29,7 @@ public class VerificationEntity {
     @Column(name = "reference_id", nullable = false)
     private String referenceId;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id", nullable = true)
     private Long userId;
 
     @Enumerated(EnumType.STRING)
