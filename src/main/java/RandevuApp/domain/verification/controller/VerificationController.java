@@ -16,30 +16,21 @@ public class VerificationController {
 
     private final VerificationService verificationService;
 
-//    @PostMapping("/initiate")
-//    @ResponseStatus(Http.NO_CONTENT)
-//    public ResponseEntity<void> initiate(@RequestBody VerificationRequest request) {
-//        // Find user
-//        User user = userDomainService.findUserById(request.getUserId());
-//
-//        // Validate request
-//        filterChainManager.validateForController(request, user);
-//
-//        verificationService.startVerification(request);
-//    }
-
     @PostMapping("/confirm-code")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void confirmCode(@RequestBody CodeConfirmRequest request) {
-        validateConfirmPurpose(request.getPurpose());
-        verificationService.verify(request.getCode(), VerificationType.CODE, request.getUserId(), request.getPurpose());
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public String confirmCode(@RequestBody CodeConfirmRequest request) {
+        validateConfirmPurpose(request.purpose());
+        verificationService.verify(request.code(), VerificationType.CODE,request.referenceId(), request.purpose());
+        return "Code Confirmed";
     }
 
     @GetMapping("/confirm-link")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void confirmLink(@RequestParam("token") String token, @RequestParam("userId") Long userId, @RequestParam(value = "purpose", defaultValue = "GENERAL") VerificationPurpose purpose) {
+    public String confirmLink(@RequestParam("token") String token,
+                              @RequestParam(value = "referenceId", required = false) String referenceId,
+                              @RequestParam(value = "purpose", defaultValue = "GENERAL") VerificationPurpose purpose) {
         validateConfirmPurpose(purpose);
-        verificationService.verify(token, VerificationType.LINK, userId, purpose);
+        verificationService.verify(token, VerificationType.LINK, referenceId, purpose);
+        return "Link Confirmed!";
     }
 
     private void validateConfirmPurpose(VerificationPurpose purpose) {

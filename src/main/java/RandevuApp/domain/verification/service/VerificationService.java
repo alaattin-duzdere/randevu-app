@@ -1,6 +1,5 @@
 package RandevuApp.domain.verification.service;
 
-import RandevuApp.api.ErrorCode;
 import RandevuApp.config.VerificationProperties;
 import RandevuApp.domain.notification.model.NotificationCategory;
 import RandevuApp.domain.notification.model.NotificationRequest;
@@ -67,30 +66,26 @@ public class VerificationService {
 
     @Transactional
     public void startVerification(VerificationRequest request, String customRecipient) {
-        // Find user
-        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new ResourceNotFoundException("userId", "id", request.getUserId()));
+        User user = null;
+        if (request.getUserId() != null) {
+            user = userRepository.findById(request.getUserId()).orElseThrow(() -> new ResourceNotFoundException("User", "id", request.getUserId()));
+        }
 
-        // 1. Validate request through filter chain
         filterChainManager.validate(request, user);
 
         IVerificationStrategy strategy = strategyMap.get(request.getType());
 
         log.warn("Verification Strategy: {}",strategy.toString());
 
-        // Generate secret and encode it
         String rawSecret = strategy.generateSecret();
         String encodedSecret = passwordEncoder.encode(rawSecret);
 
-        // Resolve purpose
         VerificationPurpose purpose = request.getPurpose() != null ? request.getPurpose() : VerificationPurpose.GENERAL;
 
-        // Clean up old unconfirmed tokens (zombies) for this specific flow
-        tokenRepository.deleteByUserIdAndTypeAndPurposeAndConfirmedAtIsNull(request.getUserId(), request.getType(), purpose);
-
-        // Resolve Reference ID (If specific ID provided use it, otherwise default to userId)
         String referenceId = request.getReferenceId() != null ? request.getReferenceId() : String.valueOf(request.getUserId());
 
-        // Create and save token
+        tokenRepository.deleteByReferenceIdAndTypeAndPurposeAndConfirmedAtIsNull(referenceId, request.getType(), purpose);
+
         VerificationEntity entity = new VerificationEntity();
         entity.setUserId(request.getUserId());
         entity.setSecret(encodedSecret);
@@ -100,31 +95,28 @@ public class VerificationService {
         entity.setExpiresAt(Instant.now().plus(verificationProperties.getTokenValidityMinutes(), ChronoUnit.MINUTES));
         tokenRepository.save(entity);
 
-        // Prepare notification
-        NotificationPayload payload = strategy.prepareNotification(request.getUserId(), rawSecret, request.getChannel(), purpose);
-        
-        // Use custom recipient if provided, otherwise resolve from user
+        NotificationPayload payload = strategy.prepareNotification(referenceId, rawSecret, request.getChannel(), purpose);
+
         String recipient = customRecipient != null ? customRecipient : resolveRecipient(request.getChannel(), user);
 
-        // Determine category based on verification type
-        NotificationCategory category = (request.getType() == VerificationType.LINK) 
-                ? NotificationCategory.LINK_VERIFICATION 
+        NotificationCategory category = (request.getType() == VerificationType.LINK)
+                ? NotificationCategory.LINK_VERIFICATION
                 : NotificationCategory.CODE_VERIFICATION;
 
         NotificationRequest notificationRequest = NotificationRequest.builder()
                 .userId(request.getUserId())
                 .recipient(recipient)
-                .explicitChannels(Set.of(request.getChannel())) // Zorunlu kanal atanıyor
+                .explicitChannels(Set.of(request.getChannel()))
                 .message(payload.getMessage())
                 .subject(payload.getSubject())
-                .category(category) // Set dynamic category
+                .category(category)
                 .variables(payload.getVariables())
                 .build();
-
         notificationService.send(notificationRequest);
     }
 
-    private String resolveRecipient(NotificationChannel channel,User user) {
+    private String resolveRecipient(NotificationChannel channel, User user) {
+        if (user == null) return null; // We will rely on customRecipient in this case
         if (channel == NotificationChannel.EMAIL) {
             return user.getEmail();
         }
@@ -132,39 +124,33 @@ public class VerificationService {
     }
 
     @Transactional
-    public VerificationResult verify(String secret, VerificationType type, Long userId, VerificationPurpose purpose) {
+    public VerificationResult verify(String input, VerificationType type, String referenceId, VerificationPurpose purpose) {
         IVerificationStrategy strategy = strategyMap.get(type);
         VerificationPurpose searchPurpose = (purpose != null) ? purpose : VerificationPurpose.GENERAL;
 
-        // Find PENDING (unconfirmed) token by userId, verification type AND purpose
-        VerificationEntity entity = tokenRepository.findTopByUserIdAndTypeAndPurposeAndConfirmedAtIsNullOrderByExpiresAtDesc(userId, type, searchPurpose)
-                .orElseThrow(() -> new VerificationNotFoundException("Doğrulama kaydı bulunamadı."));
+        VerificationEntity entity = tokenRepository.findTopByReferenceIdAndTypeAndPurposeAndConfirmedAtIsNullOrderByExpiresAtDesc(referenceId, type, searchPurpose)
+                .orElseThrow(() -> new VerificationNotFoundException("Verification not found"));
 
         log.warn("Founded verification entity: {}",entity.getId());
 
-        // Check if token is expired
         if (entity.getExpiresAt().isBefore(Instant.now())) {
-            throw new VerificationExpiredException("Kod süresi dolmuş. Lütfen yeni kod isteyin.");
+            throw new VerificationExpiredException("Verification is expired. Please request a new verification");
         }
 
-        // Check attempt count
         if (entity.isMaxAttemptsReached(verificationProperties.getMaxAttempts())) {
-            throw new VerificationFailedException(ErrorCode.ERROR_TOO_MANY_ATTEMPTS, "Çok fazla hatalı deneme yapıldı. Lütfen yeni kod isteyin.");
+            throw new VerificationFailedException("Too many attempts. Please try again later.");
         }
 
         try {
-            strategy.validate(entity.getSecret(), secret, passwordEncoder);
-        } catch (VerificationFailedException e) {
-            // Increment attempt count on failure
+            strategy.validate(entity.getSecret(), input, passwordEncoder);
+        } catch (Exception e) {
             tokenRepository.incrementAttemptCount(entity.getId());
             throw e;
         }
 
-        // If token valid mark as confirmed
         entity.setConfirmedAt(Instant.now());
         tokenRepository.save(entity);
 
-        // Publish event (Side flow)
         VerificationCompletedEvent event = new VerificationCompletedEvent(
                 entity.getUserId(),
                 entity.getPurpose(),
@@ -173,7 +159,6 @@ public class VerificationService {
         );
         eventPublisher.publishEvent(event);
 
-        // Return result(for main flow)
         return new VerificationResult(
                 entity.getUserId(),
                 entity.getPurpose(),

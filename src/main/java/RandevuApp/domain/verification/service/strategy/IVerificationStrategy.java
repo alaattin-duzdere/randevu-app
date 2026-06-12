@@ -11,7 +11,7 @@ public interface IVerificationStrategy {
 
     String generateSecret();
 
-    NotificationPayload prepareNotification(Long userId, String secret, NotificationChannel channel, VerificationPurpose purpose);
+    NotificationPayload prepareNotification(String referenceId, String secret, NotificationChannel channel, VerificationPurpose purpose);
 
     void validate(String storedSecret, String inputSecret, PasswordEncoder passwordEncoder);
 }
