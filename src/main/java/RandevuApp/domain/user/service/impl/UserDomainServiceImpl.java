@@ -65,7 +65,7 @@ public class UserDomainServiceImpl implements IUserDomainService {
                 .address(params.address())
                 .gender(params.gender())
                 .roles(Set.of(Role.USER))
-                .status(UserStatus.PENDING)
+                .status(UserStatus.ACTIVE)
                 .build();
     }
 
