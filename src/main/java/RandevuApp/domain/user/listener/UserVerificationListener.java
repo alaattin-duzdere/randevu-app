@@ -1,7 +1,7 @@
 package RandevuApp.domain.user.listener;
 
+import RandevuApp.domain.auth.service.IAuthService;
 import RandevuApp.domain.user.model.User;
-import RandevuApp.domain.user.model.UserStatus;
 import RandevuApp.domain.user.service.IUserDomainService;
 import RandevuApp.domain.user.service.IUserService;
 import RandevuApp.domain.verification.event.VerificationCompletedEvent;
@@ -19,8 +19,15 @@ import java.time.Instant;
 public class UserVerificationListener {
 
     private final IUserDomainService userDomainService;
-
     private final IUserService userService;
+    private final IAuthService authService;
+
+    @EventListener(condition = "#event.purpose.name() == 'USER_REGISTRATION'")
+    @Transactional
+    public void onUserRegistration(VerificationCompletedEvent event) {
+        log.info("Handling USER_REGISTRATION for referenceID: {}", event.getReferenceId());
+        authService.completePendingRegistration(event.getReferenceId());
+    }
 
     @EventListener(condition = "#event.purpose.name() == 'PHONE_VERIFICATION'")
     @Transactional
@@ -30,12 +37,6 @@ public class UserVerificationListener {
         User user = userDomainService.findUserById(event.getUserId());
 
         user.setPhoneVerifiedAt(Instant.now());
-
-        // for PostRegister flow
-        if (user.getStatus() == UserStatus.PENDING) {
-            user.setStatus(UserStatus.ACTIVE);
-            log.info("User ID: {} activated after phone verification.", user.getId());
-        }
 
         userDomainService.saveUser(user);
         log.info("User ID: {} phone number verified successfully.", user.getId());
@@ -47,10 +48,13 @@ public class UserVerificationListener {
         log.info("Handling EMAIL_VERIFICATION for User ID: {}", event.getUserId());
 
         User user = userDomainService.findUserById(event.getUserId());
-
         user.setEmailVerifiedAt(Instant.now());
-
         userDomainService.saveUser(user);
+
+        if (user.getEmail() != null) {
+            userDomainService.clearUnverifiedEmailExcluding(user.getEmail(), user.getId());
+        }
+
         log.info("User ID: {} email address verified successfully.", user.getId());
     }
 

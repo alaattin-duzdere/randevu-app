@@ -15,14 +15,11 @@ public record CreateUserParams(
 
     public CreateUserParams {
 
-        if (email == null || email.isBlank()) {
-            throw new InvalidInputException("Email adresi boş olamaz.");
-        }
         if (firstName == null || firstName.trim().length() < 2) {
             throw new InvalidInputException("İsim en az 2 karakter olmalıdır.");
         }
 
-        if(!ContactFormatUtil.isEmail(email)){
+        if (email != null && !ContactFormatUtil.isEmail(email)) {
             throw new InvalidInputException("Geçersiz email adresi.");
         }
         if (!ContactFormatUtil.isPhone(phoneNumber)) {
