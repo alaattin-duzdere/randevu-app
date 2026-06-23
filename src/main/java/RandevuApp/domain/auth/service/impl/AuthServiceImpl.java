@@ -1,17 +1,18 @@
 package RandevuApp.domain.auth.service.impl;
 
 import RandevuApp.domain.auth.dto.*;
+import RandevuApp.domain.auth.model.PendingUser;
 import RandevuApp.domain.auth.model.RefreshToken;
 import RandevuApp.domain.auth.model.SecurityUser;
+import RandevuApp.domain.auth.repository.PendingUserRepository;
 import RandevuApp.domain.auth.repository.RefreshTokenRepository;
 import RandevuApp.domain.auth.service.IAuthService;
 import RandevuApp.domain.auth.service.TokenBlacklistService;
 import RandevuApp.domain.notification.model.NotificationChannel;
 import RandevuApp.domain.user.model.User;
 import RandevuApp.domain.user.model.UserStatus;
-import RandevuApp.domain.user.model.VerificationStatus;
-import RandevuApp.domain.user.service.param.CreateUserParams;
 import RandevuApp.domain.user.service.IUserDomainService;
+import RandevuApp.domain.user.service.param.CreateUserParams;
 import RandevuApp.domain.verification.model.VerificationPurpose;
 import RandevuApp.domain.verification.model.VerificationRequest;
 import RandevuApp.domain.verification.model.VerificationType;
@@ -20,7 +21,9 @@ import RandevuApp.exceptions.auth.ExpiredTokenException;
 import RandevuApp.exceptions.auth.InvalidCredentialsException;
 import RandevuApp.exceptions.auth.InvalidTokenException;
 import RandevuApp.exceptions.auth.UserBannedException;
+import RandevuApp.exceptions.client.ConflictException;
 import RandevuApp.exceptions.client.InvalidInputException;
+import RandevuApp.exceptions.client.ResourceNotFoundException;
 import com.authcore.service.JwtService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +49,7 @@ public class AuthServiceImpl implements IAuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final TokenBlacklistService blacklistService;
+    private final PendingUserRepository pendingUserRepository;
 
     @Value("${auth-core.refresh-token-expiration-ms}")
     private Long refreshTokenDurationMs;
@@ -56,58 +60,61 @@ public class AuthServiceImpl implements IAuthService {
     @Value("${app.security.phone-verification-validity-days}")
     private long phoneVerificationValidityDays;
 
+    @Value("${application.auth.pending-user.ttl-minutes:15}")
+    private long pendingUserTtlMinutes;
+
     @Override
     @Transactional
     public void register(RegisterRequest request) {
-        log.info("Registering new user with email: {}", request.email());
 
-        CreateUserParams createUserParams = new CreateUserParams(
-                request.email(),
-                request.phoneNumber(),
-                request.firstName(),
-                request.lastName(),
-                request.gender(), request.address());
+        if (userDomainService.existsByVerifiedEmail(request.email())) {
+            throw new ConflictException("Email already in use by a verified account.");
+        }
+        if (userDomainService.existsByPhoneNumber(request.phoneNumber())) {
+            throw new ConflictException("Phone number already in use");
+        }
 
-        String encodedPassword = passwordEncoder.encode(request.password());
+        PendingUser pendingUser = PendingUser.builder()
+                .phoneNumber(request.phoneNumber())
+                .firstName(request.firstName())
+                .lastName(request.lastName())
+                .email(request.email())
+                .gender(request.gender())
+                .password(passwordEncoder.encode(request.password()))
+                .ttl(pendingUserTtlMinutes)
+                .build();
 
-        // 1. Create and save User via UserDomainService
-        User user = userDomainService.createNewUser(createUserParams,encodedPassword);
-        user = userDomainService.saveUser(user);
+        pendingUserRepository.save(pendingUser);
 
-        // 2. Start Verification (SMS)
         VerificationRequest verificationRequest = new VerificationRequest(
-                user.getId(),
+                null,
                 VerificationType.CODE,
                 NotificationChannel.SMS,
-                VerificationPurpose.PHONE_VERIFICATION,
-                null
+                VerificationPurpose.USER_REGISTRATION,
+                request.phoneNumber()
         );
 
-        verificationService.startVerification(verificationRequest);
+        verificationService.startVerification(verificationRequest,request.phoneNumber());
 
-        log.info("User registered successfully. Verification SMS sent to: {}", request.phoneNumber());
+        log.info("Pending registration created and SMS sent for: {}", request.phoneNumber());
     }
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
         String identifier = loginRequest.identifier();
 
-        log.info("Login request received for identifier: {}", loginRequest.identifier());
+        log.info("Login request received for phoneNumber: {}", identifier);
 
-        // 1. Find User (Email or Phone)
-        User user = userDomainService.findUserByIdentifier(loginRequest.identifier());
+        User user = userDomainService.findUserByIdentifier(identifier);
 
-        // 2. Check Password
         if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
             throw new InvalidCredentialsException("Invalid email/phone or password");
         }
 
-        // 3. Check Status
         if (user.getStatus() == UserStatus.BANNED) {
             throw new UserBannedException("Your account has been banned. Please contact support.");
         }
 
-        // 4. Generate Tokens
         SecurityUser securityUser = new SecurityUser(user);
 
         String accessToken = jwtService.generateToken(generateUserClaims(securityUser), securityUser);
@@ -172,31 +179,51 @@ public class AuthServiceImpl implements IAuthService {
 
     @Override
     @Transactional
-    public void resendVerification(ResendVerificationRequest request) {
-        String identifier = request.identifier();
+    public void resendVerificationForPhone(ResendVerificationRequest request) {
+        log.info("Resend verification request received for: {}", request.phoneNumber());
+        String phoneNumber = request.phoneNumber();
 
-        log.info("Resend verification request received for: {}", identifier);
+        PendingUser pendingUser = pendingUserRepository.findById(phoneNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Pending user", "phone", phoneNumber));
 
-        User user = userDomainService.findUserByIdentifier(identifier);
-
-        if (user.getStatus() != UserStatus.PENDING) {
-            throw new InvalidInputException("User is already active or banned. Cannot resend registration verification.");
-        }
-
-        if(user.getPhoneVerificationStatus(phoneVerificationValidityDays) != VerificationStatus.NOT_VERIFIED){
-            throw new InvalidInputException("User phone is already verified.");        }
-
-        // Start Verification (SMS)
         VerificationRequest verificationRequest = new VerificationRequest(
-                user.getId(),
+                null,
                 VerificationType.CODE,
                 NotificationChannel.SMS,
                 VerificationPurpose.PHONE_VERIFICATION,
+                pendingUser.getPhoneNumber()
+        );
+
+        verificationService.startVerification(verificationRequest, pendingUser.getPhoneNumber());
+        log.info("Verification SMS resent to: {}", pendingUser.getPhoneNumber());
+    }
+
+    @Override
+    @Transactional
+    public void completePendingRegistration(String phoneNumber) {
+        log.info("Completing pending registration for phone: {}", phoneNumber);
+
+        PendingUser pendingUser = pendingUserRepository.findById(phoneNumber)
+                .orElseThrow(() -> new InvalidInputException(
+                        "Pending registration not found or expired for phone: " + phoneNumber));
+
+        CreateUserParams params = new CreateUserParams(
+                pendingUser.getEmail(),
+                pendingUser.getPhoneNumber(),
+                pendingUser.getFirstName(),
+                pendingUser.getLastName(),
+                pendingUser.getGender(),
                 null
         );
 
-        verificationService.startVerification(verificationRequest);
-        log.info("Verification SMS resent to: {}", user.getPhoneNumber());
+        User newUser = userDomainService.createNewUser(params, pendingUser.getPassword());
+        newUser.setPhoneVerifiedAt(Instant.now());
+        newUser.setStatus(UserStatus.ACTIVE);
+
+        userDomainService.saveUser(newUser);
+        pendingUserRepository.delete(pendingUser);
+
+        log.info("User created successfully from pending registration. Phone: {}, UserId: {}", phoneNumber, newUser.getId());
     }
 
     private Map<String, Object> generateUserClaims(SecurityUser securityUser) {

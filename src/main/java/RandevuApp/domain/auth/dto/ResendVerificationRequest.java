@@ -1,18 +1,18 @@
 package RandevuApp.domain.auth.dto;
 
+import RandevuApp.commons.annotation.ValidPhone;
 import RandevuApp.commons.util.DataNormalizationUtil;
 import jakarta.validation.constraints.NotBlank;
 
 public record ResendVerificationRequest(
-        @NotBlank(message = "Identifier cannot be blank")
-        String identifier
+        @NotBlank(message = "Phone number cannot be blank")
+        @ValidPhone(message = "Invalid phone number format")
+        String phoneNumber
 ) {
     // Compact constructor for automatic data normalization
     public ResendVerificationRequest {
-        if (identifier != null) {
-            identifier = identifier.contains("@") ?
-                    DataNormalizationUtil.normalizeEmail(identifier) :
-                    DataNormalizationUtil.normalizePhone(identifier);
+        if (phoneNumber != null) {
+            phoneNumber = DataNormalizationUtil.normalizePhone(phoneNumber);
         }
     }
 }

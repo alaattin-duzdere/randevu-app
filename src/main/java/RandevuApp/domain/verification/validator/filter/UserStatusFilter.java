@@ -25,12 +25,9 @@ public class UserStatusFilter implements IVerificationFilter {
         VerificationPurpose purpose = request.getPurpose();
         if (purpose == null) return;
 
+        if(user == null) return;
+
         switch (purpose) {
-            case PASSWORD_RESET:
-                if (user.getStatus() != UserStatus.ACTIVE) {
-                    throw new VerificationPurposeException("User is not active. Cannot start password reset.");
-                }
-                break;
             case EMAIL_VERIFICATION:
                 if (user.getEmailVerificationStatus(emailVerificationValidityDays) == VerificationStatus.VERIFIED){
                     throw new VerificationPurposeException("User is already verified. Cannot start email verification.");

@@ -47,6 +47,6 @@ public class AuthController {
     @PostMapping("/resend-verification")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resendVerification(@RequestBody @Valid ResendVerificationRequest request) {
-        authService.resendVerification(request);
+        authService.resendVerificationForPhone(request);
     }
 }
