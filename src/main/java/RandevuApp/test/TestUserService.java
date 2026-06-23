@@ -25,7 +25,7 @@ public class TestUserService {
                 .roles(Set.of(Role.USER))
                 .firstName("Alaattin")
                 .lastName("Düzdere")
-                .status(UserStatus.PENDING)
+                .status(UserStatus.ACTIVE)
                 .phoneNumber("5464934661")
                 .build();
     }

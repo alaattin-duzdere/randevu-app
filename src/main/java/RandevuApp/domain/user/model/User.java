@@ -21,9 +21,9 @@ import java.util.Set;
 @Builder
 public class User extends BaseEntity {
 
-    @Column(unique = true)
+    @Column(nullable = true)
     @Email
-    @NotBlank
+    @Nullable
     private String email;
 
     @Column(nullable = false, unique = true)

@@ -20,5 +20,9 @@ public interface IUserDomainService {
 
     boolean existsByPhoneNumber(String phoneNumber);
 
+    boolean existsByVerifiedEmail(String email);
+
+    void clearUnverifiedEmailExcluding(String email, Long excludedUserId);
+
     void deleteUser(User user);
 }

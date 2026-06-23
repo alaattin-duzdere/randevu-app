@@ -9,7 +9,6 @@ import RandevuApp.domain.user.service.param.CreateUserParams;
 import RandevuApp.domain.user.repository.UserRepository;
 import RandevuApp.domain.user.repository.UserSpecifications;
 import RandevuApp.domain.user.service.IUserDomainService;
-import RandevuApp.exceptions.client.ConflictException;
 import RandevuApp.exceptions.client.InvalidInputException;
 import RandevuApp.exceptions.client.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -34,7 +34,7 @@ public class UserDomainServiceImpl implements IUserDomainService {
     @Override
     public User findUserByIdentifier(String identifier) {
         if (ContactFormatUtil.isEmail(identifier)) {
-            return userRepository.findByEmail(identifier)
+            return userRepository.findByEmailAndEmailVerifiedAtIsNotNull(identifier)
                     .orElseThrow(() -> new ResourceNotFoundException("User", "email", identifier));
 
         } else if (ContactFormatUtil.isPhone(identifier)) {
@@ -55,13 +55,6 @@ public class UserDomainServiceImpl implements IUserDomainService {
     @Override
     @Transactional
     public User createNewUser(CreateUserParams params, String encodedPassword) {
-
-        if (userRepository.existsByEmail(params.email())) {
-            throw new ConflictException("Email already in use");
-        }
-        if (userRepository.existsByPhoneNumber(params.email())) {
-            throw new ConflictException("Phone number already in use");
-        }
 
         return User.builder()
                 .email(params.email())
@@ -99,6 +92,27 @@ public class UserDomainServiceImpl implements IUserDomainService {
         return userRepository.existsByPhoneNumber(phoneNumber);
     }
 
+    @Override
+    public boolean existsByVerifiedEmail(String email) {
+        return userRepository.existsByEmailAndEmailVerifiedAtIsNotNull(email);
+    }
+
+    @Override
+    @Transactional
+    public void clearUnverifiedEmailExcluding(String email, Long excludedUserId) {
+        List<User> usersToUpdate = userRepository.findAllByEmailAndEmailVerifiedAtIsNullAndIdNot(email, excludedUserId);
+
+        if (usersToUpdate.isEmpty()) {
+            return;
+        }
+
+        usersToUpdate.forEach(u -> u.setEmail(null));
+        userRepository.saveAll(usersToUpdate);
+
+        log.info("{} unverified email addresses were cleared (email: {}, triggered by userId: {}).",
+                usersToUpdate.size(), email, excludedUserId);
+    }
+
     @Transactional
     @Override
     public void deleteUser(User user) {
@@ -106,7 +120,9 @@ public class UserDomainServiceImpl implements IUserDomainService {
 
         String timestamp = String.valueOf(System.currentTimeMillis());
 
-        user.setEmail("deleted_" + timestamp + "_" + user.getEmail());
+        if (user.getEmail() != null) {
+            user.setEmail("deleted_" + timestamp + "_" + user.getEmail());
+        }
         user.setPhoneNumber("deleted_" + timestamp + "_" + user.getPhoneNumber());
 
         user.setFirstName("Deleted User");
@@ -117,6 +133,6 @@ public class UserDomainServiceImpl implements IUserDomainService {
 
         userRepository.save(user);
 
-        log.info("Kullanıcı (ID: {}) anonimleştirilerek soft-delete yapıldı.", user.getId() );
+        log.info("User (ID: {}) was anonymized and soft-deleted.", user.getId());
     }
 }

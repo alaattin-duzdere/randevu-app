@@ -154,8 +154,8 @@ public class UserServiceImpl implements IUserService {
             throw new PasswordMismatchException("Incorrect password");
         }
 
-        if (userDomainService.existsByEmail(newEmail)){
-            throw new ConflictException("Email already in use");
+        if (userDomainService.existsByVerifiedEmail(newEmail)){
+            throw new ConflictException("Email already in use by a verified account.");
         }
 
         // Clean up old requests
@@ -198,6 +198,11 @@ public class UserServiceImpl implements IUserService {
         user.setEmailVerifiedAt(Instant.now());
 
         userDomainService.saveUser(user);
+
+        if (user.getEmail() != null) {
+            userDomainService.clearUnverifiedEmailExcluding(user.getEmail(), user.getId());
+        }
+
         userChangeRequestRepository.delete(userChangeRequest);
         log.info("Email updated successfully for user: {}", userId);
     }
@@ -209,6 +214,10 @@ public class UserServiceImpl implements IUserService {
 
         if (user.getEmailVerifiedAt() != null) {
             throw new ConflictException("Email is already verified.");
+        }
+
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            throw new InvalidInputException("User does not have an email to verify. Please initiate new email change request.");
         }
 
         VerificationRequest verificationRequest = new VerificationRequest(
