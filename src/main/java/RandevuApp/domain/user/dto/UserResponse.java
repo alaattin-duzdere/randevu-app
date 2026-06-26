@@ -13,7 +13,6 @@ public record UserResponse(
         String firstName,
         String lastName,
         Gender gender,
-        String address,
         Set<Role> roles,
         UserStatus status
 ) {}

@@ -49,10 +49,6 @@ public class User extends BaseEntity {
     @Builder.Default
     private Gender gender = Gender.NOT_SPECIFIED;
 
-    @Size(max = 255)
-    @Nullable
-    private String address;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @CollectionTable(

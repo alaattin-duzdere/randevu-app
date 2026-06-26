@@ -212,8 +212,7 @@ public class AuthServiceImpl implements IAuthService {
                 pendingUser.getPhoneNumber(),
                 pendingUser.getFirstName(),
                 pendingUser.getLastName(),
-                pendingUser.getGender(),
-                null
+                pendingUser.getGender()
         );
 
         User newUser = userDomainService.createNewUser(params, pendingUser.getPassword());

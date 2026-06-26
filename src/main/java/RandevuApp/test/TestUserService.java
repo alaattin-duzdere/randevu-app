@@ -20,7 +20,6 @@ public class TestUserService {
         return User.builder()
                 .password(passwordEncoder.encode(pass))
                 .email(email)
-                .address("adres")
                 .gender(Gender.MALE)
                 .roles(Set.of(Role.USER))
                 .firstName("Alaattin")

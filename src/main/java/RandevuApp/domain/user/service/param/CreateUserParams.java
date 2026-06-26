@@ -9,8 +9,7 @@ public record CreateUserParams(
         String phoneNumber,
         String firstName,
         String lastName,
-        Gender gender,
-        String address
+        Gender gender
 ) {
 
     public CreateUserParams {
