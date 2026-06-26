@@ -12,6 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -46,6 +47,15 @@ public class GlobalExceptionHandler {
 
     // 2. SECURITY & AUTHENTICATION EXCEPTIONS
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiErrorResponse> handleAuthenticationException(AuthenticationException ex) {
+        ApiErrorResponse body = new ApiErrorResponse(
+                ErrorCode.ERROR_UNAUTHORIZED,
+                "Authentication failed: " + ex.getMessage()
+        );
+        return buildErrorResponse(ErrorCode.ERROR_UNAUTHORIZED, body);
+    }
+
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ApiErrorResponse> handleExpiredJwtException(ExpiredJwtException ex) {
         ApiErrorResponse body = new ApiErrorResponse(
@@ -58,8 +68,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<ApiErrorResponse> handleMalformedJwtException(MalformedJwtException ex) {
         ApiErrorResponse body = new ApiErrorResponse(
-                ErrorCode.ERROR_INVALID_TOKEN,
-                "The provided token is malformed."
+                ErrorCode.ERROR_INVALID_TOKEN
         );
         return buildErrorResponse(ErrorCode.ERROR_INVALID_TOKEN, body);
     }
@@ -83,7 +92,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiErrorResponse> handleAccessDeniedForMethodSecurity() {
+    public ResponseEntity<ApiErrorResponse> handleAccessDeniedException() {
         ApiErrorResponse body = new ApiErrorResponse(
                 ErrorCode.ERROR_FORBIDDEN,
                 "Access denied"
