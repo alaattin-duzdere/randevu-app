@@ -32,9 +32,7 @@ public record RegisterRequest(
         @Pattern(regexp = "^[\\p{L} .'-]+$", message = "Name contains invalid characters")
         String lastName,
 
-        Gender gender,
-
-        String address
+        Gender gender
 ) {
     // Compact constructor for automatic data normalization
     public RegisterRequest {

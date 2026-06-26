@@ -60,7 +60,6 @@ public class UserServiceImpl implements IUserService {
     public UserResponse updateCurrentUserProfile(Long userId,UpdateUserRequest request) {
         User user = userDomainService.findUserById(userId);
 
-        user.setAddress(request.address());
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setGender(request.gender());

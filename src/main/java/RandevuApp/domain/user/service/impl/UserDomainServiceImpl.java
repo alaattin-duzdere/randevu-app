@@ -62,7 +62,6 @@ public class UserDomainServiceImpl implements IUserDomainService {
                 .password(encodedPassword)
                 .firstName(params.firstName())
                 .lastName(params.lastName())
-                .address(params.address())
                 .gender(params.gender())
                 .roles(Set.of(Role.USER))
                 .status(UserStatus.ACTIVE)
@@ -128,7 +127,6 @@ public class UserDomainServiceImpl implements IUserDomainService {
         user.setFirstName("Deleted User");
         user.setLastName(timestamp);
         user.setPassword("password_for_deleted_user");
-        user.setAddress(null);
         user.setDeleted(true);
 
         userRepository.save(user);
