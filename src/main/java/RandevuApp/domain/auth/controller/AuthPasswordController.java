@@ -12,8 +12,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
-@Slf4j
+@RequestMapping("/api/auth")
 public class AuthPasswordController {
 
     private final IAuthPasswordService authService;
