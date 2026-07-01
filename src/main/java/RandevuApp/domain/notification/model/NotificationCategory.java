@@ -1,9 +1,12 @@
 package RandevuApp.domain.notification.model;
 
 public enum NotificationCategory {
-    REMINDER,
+    EMAIL_VERIFICATION,
     LINK_VERIFICATION,
     CODE_VERIFICATION,
-    PASSWORD_RESET,
-    GENERAL_ANNOUNCEMENT
+    SUBSCRIPTION,
+    GENERAL_ANNOUNCEMENT,
+    REMINDER,
+    SECURITY_ALERT,
+    PASSWORD_RESET
 }

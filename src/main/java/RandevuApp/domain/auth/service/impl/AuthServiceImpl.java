@@ -1,5 +1,7 @@
 package RandevuApp.domain.auth.service.impl;
 
+import RandevuApp.commons.util.ContactFormatUtil;
+import RandevuApp.config.SecurityProperties;
 import RandevuApp.domain.auth.dto.*;
 import RandevuApp.domain.auth.model.PendingUser;
 import RandevuApp.domain.auth.model.RefreshToken;
@@ -11,6 +13,7 @@ import RandevuApp.domain.auth.service.TokenBlacklistService;
 import RandevuApp.domain.notification.model.NotificationChannel;
 import RandevuApp.domain.user.model.User;
 import RandevuApp.domain.user.model.UserStatus;
+import RandevuApp.domain.user.model.VerificationStatus;
 import RandevuApp.domain.user.service.IUserDomainService;
 import RandevuApp.domain.user.service.param.CreateUserParams;
 import RandevuApp.domain.verification.model.VerificationPurpose;
@@ -24,6 +27,7 @@ import RandevuApp.exceptions.auth.UserBannedException;
 import RandevuApp.exceptions.client.ConflictException;
 import RandevuApp.exceptions.client.InvalidInputException;
 import RandevuApp.exceptions.client.ResourceNotFoundException;
+import com.authcore.property.AuthProperties;
 import com.authcore.service.JwtService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -50,17 +54,10 @@ public class AuthServiceImpl implements IAuthService {
     private final JwtService jwtService;
     private final TokenBlacklistService blacklistService;
     private final PendingUserRepository pendingUserRepository;
+    private final SecurityProperties securityProperties;
+    private final AuthProperties authProperties;
 
-    @Value("${auth-core.refresh-token-expiration-ms}")
-    private Long refreshTokenDurationMs;
-
-    @Value("${auth-core.expiration-ms}")
-    private Long accessTokenDurationMs;
-
-    @Value("${app.security.phone-verification-validity-days}")
-    private long phoneVerificationValidityDays;
-
-    @Value("${application.auth.pending-user.ttl-minutes:15}")
+    @Value("${app.auth.pending-user.ttl-minutes:15}")
     private long pendingUserTtlMinutes;
 
     @Override
@@ -107,6 +104,13 @@ public class AuthServiceImpl implements IAuthService {
 
         User user = userDomainService.findUserByIdentifier(identifier);
 
+        if (ContactFormatUtil.isEmail(identifier)) {
+            VerificationStatus emailStatus = user.getEmailVerificationStatus(securityProperties.getEmailVerificationValidityDays());
+            if (emailStatus != VerificationStatus.VERIFIED) {
+                // throw smth here
+            }
+        }
+
         if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
             throw new InvalidCredentialsException("Invalid email/phone or password");
         }
@@ -125,8 +129,8 @@ public class AuthServiceImpl implements IAuthService {
         return LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(savedRefreshToken.getRefreshToken())
-                .accessTokenExpiresIn(accessTokenDurationMs)
-                .refreshTokenExpiresIn(refreshTokenDurationMs)
+                .accessTokenExpiresIn(authProperties.getExpirationMs())
+                .refreshTokenExpiresIn(authProperties.getRefreshExpirationMs())
                 .build();
     }
 
@@ -161,8 +165,8 @@ public class AuthServiceImpl implements IAuthService {
         return RefreshResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(newRefreshToken.getRefreshToken())
-                .accessTokenExpiresIn(accessTokenDurationMs)
-                .refreshTokenExpiresIn(refreshTokenDurationMs)
+                .accessTokenExpiresIn(authProperties.getExpirationMs())
+                .refreshTokenExpiresIn(authProperties.getRefreshExpirationMs())
                 .build();
     }
 
@@ -237,7 +241,7 @@ public class AuthServiceImpl implements IAuthService {
 
     private RefreshToken createRefreshToken(User user) {
         RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setExpiredDate(Instant.now().plusMillis(refreshTokenDurationMs));
+        refreshToken.setExpiredDate(Instant.now().plusMillis(authProperties.getRefreshExpirationMs()));
         refreshToken.setRefreshToken(UUID.randomUUID().toString());
         refreshToken.setUser(user);
         return refreshToken;

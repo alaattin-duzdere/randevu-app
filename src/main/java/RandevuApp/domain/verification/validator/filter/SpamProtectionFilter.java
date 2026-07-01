@@ -1,6 +1,5 @@
 package RandevuApp.domain.verification.validator.filter;
 
-import RandevuApp.api.ErrorCode;
 import RandevuApp.config.VerificationProperties;
 import RandevuApp.domain.user.model.User;
 import RandevuApp.domain.verification.model.VerificationRequest;

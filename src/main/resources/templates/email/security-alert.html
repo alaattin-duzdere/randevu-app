@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body style="margin: 0; padding: 0; background-color: #fafafa; font-family: 'Inter', system-ui, sans-serif;">
+<div style="max-width: 600px; margin: 40px auto; background: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; overflow: hidden; border-top: 4px solid #ef4444;">
+    <div style="padding: 32px 40px 20px 40px; border-bottom: 1px solid #f4f4f5;">
+        <table border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td style="padding-right: 10px; vertical-align: middle;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 10.42 4.8-5.07"/><path d="M19 18h3"/><path d="M9.5 22 21.414 9.415A2 2 0 0 0 21.2 6.4l-5.61-4.208A1 1 0 0 0 14 3v2a2 2 0 0 1-1.394 1.906L8.677 8.053A1 1 0 0 0 8 9c-.155 6.393-2.082 9-4 9a2 2 0 0 0 0 4h14"/>
+                    </svg>
+                </td>
+                <td style="vertical-align: middle;">
+                    <span style="font-family: 'Geist', sans-serif; font-size: 18px; font-weight: 600; color: #09090b;">TalosGym</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style="padding: 40px;">
+        <h2 style="font-family: 'Geist', sans-serif; color: #ef4444; letter-spacing: -0.02em; margin-top: 0;">Güvenlik Bildirimi</h2>
+        <p style="color: #3f3f46; line-height: 1.6; font-size: 16px;">Merhaba <span th:text="${name}" style="font-weight: 600;">Kullanıcı</span>,</p>
+        <p style="color: #3f3f46; line-height: 1.6; font-size: 16px;">Hesabınız için yakın zamanda bir şifre sıfırlama isteği alındı.</p>
+        <div style="background-color: #fff7ed; border: 1px solid #ffedd5; padding: 16px; border-radius: 6px; color: #9a3412; margin: 20px 0;">
+            <span th:if="${message != null}" th:text="${message}" style="font-weight: 500;">Bildirim mesajı</span>
+            <span th:unless="${message != null}">Eğer bu işlemi siz yapmadıysanız, hesabınızın güvenliği için lütfen hemen bizimle iletişime geçin.</span>
+        </div>
+        <p style="color: #3f3f46; line-height: 1.6; font-size: 16px;">Hesabınız şu an için güvendedir.</p>
+    </div>
+    <div style="background-color: #f8f8f8; padding: 24px; text-align: center; border-top: 1px solid #e4e4e7;">
+        <p style="margin: 0; font-size: 12px; color: #71717a;">&copy; 2026 TalosGym. Tüm hakları saklıdır.</p>
+    </div>
+</div>
+</body>
+</html>
