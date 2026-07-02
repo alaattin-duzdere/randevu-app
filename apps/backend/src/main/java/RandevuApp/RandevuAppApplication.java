@@ -19,6 +19,7 @@ public class RandevuAppApplication {
 	}
 
 	// Nerede kalmıştık ?
+	// Talos-Gym projesindeki çözülen sorunlar buraya da aktarılıyor;
 	// Appointment domain servisteki status ile ilgili metodlarla ilgilen , zaman ayır.
 
 
@@ -30,13 +31,13 @@ public class RandevuAppApplication {
 	// + ( tamamlandı ) Phone için bir validasyon annotation yazılacak
 	// + ( tamamlandı ) domain servislerde bazı metodlarda dtolar kullanılıyor.!!
 	// - SpamProtectionFilter ve TokenBlacklistService sınıflarında redis kullanılıyor. Redis kullanımı şuanda dağıtık olarak sağlanıyor.
-	// - Email/Phone yani kısaca identifier için özel bir validasyon yazılabilir.
-	// - UserControllerdaki void/string dönüşler için ResponseEntity.noContent kullanmayı düşün. Burada bir karar verilmesi lazım, eğer frontendden belirli bir standartta cevap bekleniyor mu (VustomResponseBody)
+	// + UserControllerdaki void/string dönüşler için ResponseEntity.noContent kullanmayı düşün. Burada bir karar verilmesi lazım, eğer frontendden belirli bir standartta cevap bekleniyor mu (VustomResponseBody)
+	// + Bütün dtolar validation annotationlar kullanacak
+	// - Email/Phone yani kısaca phoneNumber için özel bir validasyon yazılabilir.
 	// - Şuna karar verilmeli; authentication controllerda parametre olarak mı gelmeli yoksa SecurityContextHolder'dan mı çekilmeli. Şuan da her iki yöntem de uygulanıyor
 	// - delete business metodunda eğer aktif randevu varsa silme işlemini engellemek yerine randevular iptal ettirilip(canceled stat) kullanıcı bilgilendirilebilir.
 	// - BusinessServiceImpl sınıfındaki appointment repository bağımlılığından kurtul
 	// - ServiceOfferingServiceImpl deleteService metodunda bu servisi kullanan aktif randevu var mı kontrol edilecek
-	// - Bütün dtolar validation annotationlar kullanacak
 	// - Domain servislerdeki performUpdate metodlarının gerekliliğini gözden geçir.
 
 	// Feat:
