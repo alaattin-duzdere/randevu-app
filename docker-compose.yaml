@@ -1,0 +1,41 @@
+include:
+  - docker-compose.db.yaml
+
+services:
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: randevuapp-backend
+    restart: unless-stopped
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - APP_LOG_LEVEL=${APP_LOG_LEVEL:-INFO}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_DATA_REDIS_URL=redis://redis:6379
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}
+      - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}
+      - BACKEND_PORT=${BACKEND_PORT:-8080}
+      - BACKEND_URL=${BACKEND_URL:-http://localhost:8080}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - LOCATIONIQ_API_KEY=${LOCATIONIQ_API_KEY:-}
+      - MACRODROID_WEBHOOK_URL=${MACRODROID_WEBHOOK_URL:-}
+      - MACRODROID_WEBHOOK_SECRET=${MACRODROID_WEBHOOK_SECRET:-}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    networks:
+      - backend-network
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
