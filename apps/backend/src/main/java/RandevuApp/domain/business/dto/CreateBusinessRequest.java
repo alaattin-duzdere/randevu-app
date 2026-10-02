@@ -1,7 +1,6 @@
 package RandevuApp.domain.business.dto;
 
 import RandevuApp.commons.validator.ValidTimeZone;
-import RandevuApp.domain.business.model.Address;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,8 +11,7 @@ public record CreateBusinessRequest(
         @NotBlank(message = "Business name cannot be blank")
         @Size(min = 2, max = 100) String name,
 
-        @NotNull(message = "Address details are required")
-        @Valid Address address,
+        @NotNull(message = "Address details are required") @Valid AddressDto address,
 
         String description,
 

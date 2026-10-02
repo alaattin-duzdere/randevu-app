@@ -41,6 +41,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class BusinessServiceImp implements IBusinessService {
     private final IUserDomainService userDomainService;
     private final BusinessProperties businessProperties;
@@ -69,7 +70,7 @@ public class BusinessServiceImp implements IBusinessService {
         }
 
         // Address Validation & Geocoding
-        GeoLocationResult geoLocationResult = geocodingPort.getPlaceDetailsById(request.address().getExternalLocationId())
+        GeoLocationResult geoLocationResult = geocodingPort.getPlaceDetailsById(request.address().externalLocationId())
                 .orElseThrow(() -> new InvalidInputException("Invalid address location ID."));
 
         Address address = businessMapper.geoLocationResultToAddress(geoLocationResult);
@@ -123,7 +124,6 @@ public class BusinessServiceImp implements IBusinessService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Page<BusinessResponse> searchBusinesses(BusinessSearchRequest searchRequest, Pageable pageable) {
         Specification<Business> spec = BusinessSpecification.init(searchRequest);
         Page<Business> businessPage = businessDomainService.findAll(spec, pageable);

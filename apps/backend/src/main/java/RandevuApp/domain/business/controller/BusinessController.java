@@ -25,7 +25,6 @@ public class BusinessController {
 
     private final IBusinessService businessService;
 
-    // TODO:Yetki kontrolü yapılmalı
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BusinessResponse createBusiness(

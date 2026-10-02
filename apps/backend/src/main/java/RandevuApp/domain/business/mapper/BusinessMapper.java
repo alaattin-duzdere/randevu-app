@@ -6,10 +6,13 @@ import RandevuApp.domain.business.dto.GeoLocationResult;
 import RandevuApp.domain.business.model.Address;
 import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.business.model.BusinessSettings;
+import RandevuApp.domain.service_offering.model.ServiceOffering;
+import RandevuApp.domain.staff.model.Staff;
 import RandevuApp.domain.user.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Slf4j
 @Component
@@ -24,10 +27,16 @@ public class BusinessMapper {
     public BusinessResponse businessToBusinessResponse(Business business) {
         // Build immutable BusinessResponse record from Business entity
         BusinessSettings businessSettings = business.getBusinessSettings();
-        if (businessSettings != null) businessSettings.setBusiness(business); // null prevention (preserve previous behavior)
+        if (businessSettings != null) businessSettings.setBusiness(business); // null prevention
 
         BusinessSettingsResponse businessSettingsResponse = businessSettings == null ? null
                 : businessSettingsToBusinessSettingsResponse(businessSettings);
+
+        List<Long> staffIds = business.getStaffList() == null ? List.of()
+                : business.getStaffList().stream().map(Staff::getId).toList();
+
+        List<Long> serviceIds = business.getServiceList() == null ? List.of()
+                : business.getServiceList().stream().map(ServiceOffering::getId).toList();
 
         return new BusinessResponse(
                 business.getId(),
@@ -39,8 +48,8 @@ public class BusinessMapper {
                 business.isActive(),
                 userMapper.userToUserResponse(business.getOwner()),
                 businessSettingsResponse,
-                business.getStaffList(),
-                business.getServiceList()
+                staffIds,
+                serviceIds
         );
     }
 

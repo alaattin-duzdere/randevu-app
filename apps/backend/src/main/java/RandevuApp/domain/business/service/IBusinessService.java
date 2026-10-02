@@ -21,8 +21,6 @@ public interface IBusinessService {
 
     Page<BusinessResponse> searchBusinesses(BusinessSearchRequest searchRequest, Pageable pageable);
 
-//    void restoreBusiness(Long businessId);
-
     BusinessResponse updateBusiness(Long businessId, UpdateBusinessRequest request, Long ownerId);
 
     void deleteBusiness(Long businessId, Long ownerId);
