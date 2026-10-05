@@ -40,6 +40,7 @@ public class ServiceOfferingDomainServiceImpl implements IServiceOfferingDomainS
                 .description(catalog.getDescription())
                 .durationInMinutes(catalog.getDurationInMinutes())
                 .price(catalog.getPrice())
+                .catalogId(catalog.getId())
                 .active(true)
                 .business(business)
                 .build();

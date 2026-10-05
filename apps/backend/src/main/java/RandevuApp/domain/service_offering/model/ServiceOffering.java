@@ -33,6 +33,9 @@ public class ServiceOffering extends BaseEntity {
     @Column(name = "is_active")
     private boolean active = true;
 
+    @Column(name = "catalog_id",nullable = true)
+    private Long catalogId;
+
     // Bu hizmet hangi işletmeye ait?
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "business_id", nullable = false)
