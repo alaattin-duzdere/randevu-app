@@ -14,6 +14,7 @@ import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.business.model.BusinessSettings;
 import RandevuApp.domain.business.service.params.CreateBusinessParams;
 import RandevuApp.domain.business.service.params.UpdateBusinessParams;
+import RandevuApp.domain.user.model.Role;
 import RandevuApp.integration.location.port.IGeocodingPort;
 import RandevuApp.domain.business.repository.BusinessSpecification;
 import RandevuApp.domain.business.service.IBusinessDomainService;
@@ -37,6 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -95,11 +97,16 @@ public class BusinessServiceImp implements IBusinessService {
                 address
         );
 
-        // 1. Save Business (to get ID)
+        // Save Business (to get ID)
         Business savedBusiness = businessDomainService.save(business);
 
-        // 2. Create Default Operating Hours (Now business has ID)
+        // Create Default Operating Hours (Now business has ID)
         businessScheduleDomainService.createDefaultOperatingHoursForBusiness(savedBusiness);
+
+        // Set user role
+        Set<Role> roles = owner.getRoles();
+        roles.add(Role.BUSINESS_OWNER);
+        owner.setRoles(roles);
 
         return businessMapper.businessToBusinessResponse(savedBusiness);
     }
@@ -131,6 +138,7 @@ public class BusinessServiceImp implements IBusinessService {
     }
 
     @Override
+    @Transactional
     public BusinessResponse updateBusiness(Long businessId, UpdateBusinessRequest request, Long ownerId) {
         Business business = businessDomainService.getById(businessId);
 
@@ -158,8 +166,10 @@ public class BusinessServiceImp implements IBusinessService {
     }
 
     @Override
+    @Transactional
     public void deleteBusiness(Long businessId, Long ownerId) {
         Business business = businessDomainService.getById(businessId);
+        User owner = userDomainService.findUserById(ownerId);
 
         businessDomainService.validateBusinessOwner(business, ownerId);
 
@@ -175,5 +185,12 @@ public class BusinessServiceImp implements IBusinessService {
         }
 
         businessDomainService.performDeleteBusiness(business);
+
+        List<Business> businessesOfOwner = businessDomainService.getAllByOwner(owner);
+
+        if (businessesOfOwner.isEmpty()) {
+            owner.getRoles().remove(Role.BUSINESS_OWNER);
+            userDomainService.saveUser(owner);
+        }
     }
 }
