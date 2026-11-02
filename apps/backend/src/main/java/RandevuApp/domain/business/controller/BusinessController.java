@@ -19,7 +19,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/business")
+@RequestMapping("/businesses")
 @RequiredArgsConstructor
 public class BusinessController {
 

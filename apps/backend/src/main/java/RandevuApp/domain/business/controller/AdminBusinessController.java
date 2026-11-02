@@ -18,7 +18,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/admin/business")
+@RequestMapping("/admin/businesses")
 @RequiredArgsConstructor
 public class AdminBusinessController {
 

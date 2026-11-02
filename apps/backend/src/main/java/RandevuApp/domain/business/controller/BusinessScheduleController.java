@@ -17,7 +17,7 @@ import java.util.List;
 import static RandevuApp.utils.SecurityUtils.getCurrentUserId;
 
 @RestController
-@RequestMapping("/api/businesses/{businessId}/schedule")
+@RequestMapping("/businesses/{businessId}/schedule")
 @RequiredArgsConstructor
 public class BusinessScheduleController {
 
