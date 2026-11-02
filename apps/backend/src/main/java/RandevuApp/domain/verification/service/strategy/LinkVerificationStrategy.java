@@ -29,7 +29,7 @@ public class LinkVerificationStrategy implements IVerificationStrategy {
 
     @Override
     public NotificationPayload prepareNotification(String referenceId, String secret, NotificationChannel channel, VerificationPurpose purpose) {
-        String verificationUrl = baseUrl + "/api/verification/confirm-link?token=" + secret + "&referenceId=" + referenceId + "&purpose=" + purpose;
+        String verificationUrl = baseUrl + "/verification/confirm-link?token=" + secret + "&referenceId=" + referenceId + "&purpose=" + purpose;
         Map<String, Object> variables = Map.of("link", verificationUrl);
         String subject = "Hesabınızı Doğrulayın";
         String message;

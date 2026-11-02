@@ -46,9 +46,9 @@ The verification process follows a well-defined flow, orchestrated by the `Verif
 
 ### 1. Initiate Verification
 
-To start a verification process, send a `POST` request to `/api/v1/verification/initiate`.
+To start a verification process, send a `POST` request to `/verification/initiate`.
 
-**Endpoint:** `POST /api/v1/verification/initiate`
+**Endpoint:** `POST /verification/initiate`
 
 **Body (`VerificationRequest`):**
 
@@ -71,9 +71,9 @@ To start a verification process, send a `POST` request to `/api/v1/verification/
 
 #### A. Using a Code
 
-To confirm a verification using a code received by the user, send a `POST` request to `/api/v1/verification/confirm-code`.
+To confirm a verification using a code received by the user, send a `POST` request to `/verification/confirm-code`.
 
-**Endpoint:** `POST /api/v1/verification/confirm-code`
+**Endpoint:** `POST /verification/confirm-code`
 
 **Body (`CodeConfirmRequest`):**
 
@@ -91,7 +91,7 @@ On success, this returns an HTTP 200 with the message "Kod doğrulandı!".
 
 The user clicks a link sent to their email. This triggers a `GET` request to the confirmation endpoint. The link is constructed by the `LinkVerificationStrategy`.
 
-**Endpoint:** `GET /api/v1/verification/confirm-link`
+**Endpoint:** `GET /verification/confirm-link`
 
 **Query Parameters:**
 
@@ -100,7 +100,7 @@ The user clicks a link sent to their email. This triggers a `GET` request to the
 -   `purpose`: The purpose of the verification.
 
 **Example URL:**
-`https://your-app-domain.com/api/v1/verification/confirm-link?token=...&userId=123&purpose=REGISTRATION`
+`https://your-app-domain.com/verification/confirm-link?token=...&userId=123&purpose=REGISTRATION`
 
 On success, this returns an HTTP 200 with the message "Hesap doğrulandı!".
 

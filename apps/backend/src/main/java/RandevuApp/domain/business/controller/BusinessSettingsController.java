@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/business/{businessId}/settings")
+@RequestMapping("/businesses/{businessId}/settings")
 @RequiredArgsConstructor
 public class BusinessSettingsController {
 

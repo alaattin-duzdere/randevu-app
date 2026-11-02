@@ -16,7 +16,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/businesses/{businessId}/staffs/{staffId}/time-offs")
+@RequestMapping("/businesses/{businessId}/staff/{staffId}/time-offs")
 @RequiredArgsConstructor
 public class TimeOffController {
 

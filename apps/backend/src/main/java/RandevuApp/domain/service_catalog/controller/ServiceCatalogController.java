@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/service-catalogs")
+@RequestMapping("/admin/services")
 @RequiredArgsConstructor
 public class ServiceCatalogController {
 
