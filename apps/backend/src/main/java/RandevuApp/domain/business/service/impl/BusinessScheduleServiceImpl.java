@@ -12,6 +12,8 @@ import RandevuApp.domain.business.service.IBusinessScheduleDomainService;
 import RandevuApp.domain.business.service.IBusinessScheduleService;
 import RandevuApp.exceptions.client.InvalidInputException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,26 +45,24 @@ public class BusinessScheduleServiceImpl implements IBusinessScheduleService {
         Business business = businessDomainService.getById(businessId);
         businessDomainService.validateBusinessOwner(business, ownerId);
 
-        if (requests == null || requests.size() != 7) {
-            throw new InvalidInputException("Operating hours must be provided for exactly 7 days.");
+        if (requests == null || requests.isEmpty() || requests.size() > 7) {
+            throw new InvalidInputException("Operating hours must contain between 1 and 7 days.");
         }
 
         List<BusinessOperatingHour> existingHours = scheduleDomainService.getOperatingHoursByBusinessId(businessId);
 
-        for (BusinessOperatingHour existingHour : existingHours) {
-
-            OperatingHourDto matchingRequest = requests.stream()
-                    .filter(req -> req.dayOfWeek() == existingHour.getDayOfWeek())
+        for (OperatingHourDto request : requests) {
+            BusinessOperatingHour existingHour = existingHours.stream()
+                    .filter(hour -> hour.getDayOfWeek() == request.dayOfWeek())
                     .findFirst()
-                    .orElseThrow(() -> new InvalidInputException("Missing data for day: " + existingHour.getDayOfWeek()));
+                    .orElseThrow(() -> new InvalidInputException("Missing data for day: " + request.dayOfWeek()));
 
-            existingHour.setClosed(matchingRequest.isClosed());
-            existingHour.setOpenTime(matchingRequest.openTime());
-            existingHour.setCloseTime(matchingRequest.closeTime());
+            existingHour.setClosed(request.isClosed());
+            existingHour.setOpenTime(request.openTime());
+            existingHour.setCloseTime(request.closeTime());
 
             scheduleDomainService.validateTimes(existingHour.isClosed(), existingHour.getOpenTime(), existingHour.getCloseTime());
         }
-
 
         return existingHours.stream().map(mapper::toOperatingHourDto).toList();
     }
@@ -117,9 +117,9 @@ public class BusinessScheduleServiceImpl implements IBusinessScheduleService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ScheduleOverrideResponse> getOverridesInDateRange(Long businessId, LocalDate startDate, LocalDate endDate) {
+    public Page<ScheduleOverrideResponse> getOverridesInDateRange(Long businessId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         businessDomainService.getById(businessId);
-        List<BusinessScheduleOverride> overrides = scheduleDomainService.getOverridesByBusinessIdAndDateRange(businessId, startDate, endDate);
-        return overrides.stream().map(mapper::toOverrideResponse).toList();
+        Page<BusinessScheduleOverride> overrides = scheduleDomainService.getOverridesByBusinessIdAndDateRange(businessId, startDate, endDate, pageable);
+        return overrides.map(mapper::toOverrideResponse);
     }
 }

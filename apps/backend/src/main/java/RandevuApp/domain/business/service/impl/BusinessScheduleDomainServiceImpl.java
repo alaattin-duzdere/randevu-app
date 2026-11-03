@@ -5,10 +5,15 @@ import RandevuApp.domain.business.model.BusinessOperatingHour;
 import RandevuApp.domain.business.model.BusinessScheduleOverride;
 import RandevuApp.domain.business.repository.BusinessOperatingHourRepository;
 import RandevuApp.domain.business.repository.BusinessScheduleOverrideRepository;
+import RandevuApp.domain.business.repository.BusinessScheduleOverrideSpecs;
 import RandevuApp.domain.business.service.IBusinessScheduleDomainService;
 import RandevuApp.exceptions.client.InvalidInputException;
 import RandevuApp.exceptions.client.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -18,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BusinessScheduleDomainServiceImpl implements IBusinessScheduleDomainService {
@@ -85,10 +91,19 @@ public class BusinessScheduleDomainServiceImpl implements IBusinessScheduleDomai
     }
 
     @Override
-    public List<BusinessScheduleOverride> getOverridesByBusinessIdAndDateRange(Long businessId, LocalDate startDate, LocalDate endDate) {
-        return overrideRepository.findAllByBusinessIdAndTargetDateBetween(businessId, startDate, endDate);
-    }
+    public Page<BusinessScheduleOverride> getOverridesByBusinessIdAndDateRange(Long businessId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        Specification<BusinessScheduleOverride> spec = Specification.where((root, query, cb) -> cb.conjunction());
 
+        spec = spec.and(BusinessScheduleOverrideSpecs.hasBusinessId(businessId));
+        if (startDate != null) {
+            spec = spec.and(BusinessScheduleOverrideSpecs.isAfterOrEqual(startDate));
+        }
+        if (endDate != null) {
+            spec = spec.and(BusinessScheduleOverrideSpecs.isBeforeOrEqual(endDate));
+        }
+
+        return overrideRepository.findAll(spec, pageable);
+    }
 
     // for appointment booking
     @Override

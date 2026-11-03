@@ -7,6 +7,9 @@ import RandevuApp.domain.business.dto.UpdateOperatingHoursRequest;
 import RandevuApp.domain.business.service.IBusinessScheduleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -74,11 +77,12 @@ public class BusinessScheduleController {
     }
 
     @GetMapping("/overrides")
-    public List<ScheduleOverrideResponse> getOverridesInDateRange(
+    public Page<ScheduleOverrideResponse> getOverridesInDateRange(
             @PathVariable Long businessId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @PageableDefault(size = 20, sort = "targetDate") Pageable pageable) {
 
-        return scheduleService.getOverridesInDateRange(businessId, startDate, endDate);
+        return scheduleService.getOverridesInDateRange(businessId, startDate, endDate, pageable);
     }
 }

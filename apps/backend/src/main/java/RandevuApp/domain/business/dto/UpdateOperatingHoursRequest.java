@@ -8,6 +8,6 @@ import java.util.List;
 
 public record UpdateOperatingHoursRequest(
         @NotEmpty(message = "Çalışma saatleri listesi boş olamaz")
-        @Size(min = 7, max = 7, message = "Tam olarak 7 günlük (Pazartesi-Pazar) bir liste gönderilmelidir")
+        @Size(min = 1, max = 7, message = "Çalışma saatleri listesi 1 ile 7 gün arasında olmalıdır")
         @Valid List<OperatingHourDto> operatingHours
 ) {}

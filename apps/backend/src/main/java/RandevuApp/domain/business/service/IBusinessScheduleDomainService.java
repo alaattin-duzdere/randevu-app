@@ -3,6 +3,8 @@ package RandevuApp.domain.business.service;
 import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.business.model.BusinessOperatingHour;
 import RandevuApp.domain.business.model.BusinessScheduleOverride;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -26,7 +28,7 @@ public interface IBusinessScheduleDomainService {
 
     BusinessScheduleOverride getOverrideByIdAndBusinessId(Long overrideId, Long businessId);
 
-    List<BusinessScheduleOverride> getOverridesByBusinessIdAndDateRange(Long businessId, LocalDate startDate, LocalDate endDate);
+    Page<BusinessScheduleOverride> getOverridesByBusinessIdAndDateRange(Long businessId, LocalDate startDate, LocalDate endDate, Pageable pageable);
 
     Optional<BusinessOperatingHour> getEffectiveOperatingHours(Long businessId, LocalDate date);
 }
