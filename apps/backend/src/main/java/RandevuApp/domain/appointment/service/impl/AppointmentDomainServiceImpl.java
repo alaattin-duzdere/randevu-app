@@ -5,7 +5,7 @@ import RandevuApp.domain.appointment.model.AppointmentStatus;
 import RandevuApp.domain.appointment.repository.AppointmentRepository;
 import RandevuApp.domain.appointment.repository.AppointmentSpecs;
 import RandevuApp.domain.appointment.service.IAppointmentDomainService;
-import RandevuApp.domain.appointment.service.params.AppointmentSearchCriteria;
+import RandevuApp.domain.appointment.service.params.AppointmentFindCriteria;
 import RandevuApp.domain.appointment.service.params.CreateAppointmentParams;
 import RandevuApp.domain.service_offering.model.ServiceOffering;
 import RandevuApp.exceptions.client.ConflictException;
@@ -26,19 +26,19 @@ public class AppointmentDomainServiceImpl implements IAppointmentDomainService {
     private final AppointmentRepository appointmentRepository;
 
     @Override
-    public Page<Appointment> searchAppointments(AppointmentSearchCriteria criteria, Pageable pageable) {
+    public Page<Appointment> findAppointmentByCriteria(AppointmentFindCriteria criteria, Pageable pageable) {
         Specification<Appointment> spec = buildSpecification(criteria);
 
         return appointmentRepository.findAll(spec, pageable);
     }
 
     @Override
-    public boolean existsByCriteria(AppointmentSearchCriteria criteria) {
+    public boolean existsByCriteria(AppointmentFindCriteria criteria) {
         Specification<Appointment> spec = buildSpecification(criteria);
         return appointmentRepository.exists(spec);
     }
 
-    private Specification<Appointment> buildSpecification(AppointmentSearchCriteria criteria) {
+    private Specification<Appointment> buildSpecification(AppointmentFindCriteria criteria) {
         Specification<Appointment> spec = Specification.where((root, query, cb) -> cb.conjunction());
 
         if (criteria == null) {
@@ -83,7 +83,10 @@ public class AppointmentDomainServiceImpl implements IAppointmentDomainService {
         appointment.setEndTime(params.endTime());
 
         appointment.setCustomerName(params.customerName());
+        appointment.setCustomerLastName(params.customerLastName());
         appointment.setCustomerPhone(params.customerPhone());
+
+        appointment.setTimeZone(params.timeZone());
 
         appointment.setPrice(params.service().getPrice());
 
@@ -93,30 +96,16 @@ public class AppointmentDomainServiceImpl implements IAppointmentDomainService {
     }
 
     @Override
-    public void validateAppointmentDuration(ServiceOffering serviceOffering, LocalDateTime startTime, LocalDateTime endTime) {
-        long durationInMinutes = java.time.Duration.between(startTime, endTime).toMinutes();
-
-        if (durationInMinutes != serviceOffering.getDurationInMinutes()) {
-            throw new InvalidInputException(
-                    "Seçilen saat aralığı (" + durationInMinutes + " dk), " +
-                            "hizmetin standart süresiyle (" + serviceOffering.getDurationInMinutes() + " dk) uyuşmuyor."
-            );
-        }
-    }
-
-    @Override
     public void transitionStatus(Appointment appointment, AppointmentStatus newStatus) {
         //TODO: Bu metoda zaman ayır
         AppointmentStatus currentStatus = appointment.getAppointmentStatus();
 
-        // Zaten aynı statüdeyse hiçbir şey yapma
         if (currentStatus == newStatus) {
             return;
         }
 
         switch (currentStatus) {
             case PENDING:
-                // PENDING sadece Onaylanabilir, Reddedilebilir veya İptal Edilebilir.
                 if (newStatus != AppointmentStatus.CONFIRMED &&
                         newStatus != AppointmentStatus.REJECTED &&
                         newStatus != AppointmentStatus.CANCELLED) {
@@ -125,7 +114,6 @@ public class AppointmentDomainServiceImpl implements IAppointmentDomainService {
                 break;
 
             case CONFIRMED:
-                // CONFIRMED sadece Tamamlanabilir veya (son anda) İptal Edilebilir.
                 if (newStatus != AppointmentStatus.COMPLETED &&
                         newStatus != AppointmentStatus.CANCELLED) {
                     throwIllegalState(currentStatus, newStatus);
@@ -135,17 +123,14 @@ public class AppointmentDomainServiceImpl implements IAppointmentDomainService {
             case COMPLETED:
             case CANCELLED:
             case REJECTED:
-                // Bunlar Terminal (Son/Kalıcı) statülerdir. Geri dönüş veya değişim yoktur!
                 throw new ConflictException(
                         "Randevu kalıcı '" + currentStatus + "' statüsündeyken, '" + newStatus + "' yapılamaz."
                 );
         }
 
-        // Bütün kalkanlardan geçildiyse statüyü güvenle güncelle
         appointment.setAppointmentStatus(newStatus);
     }
 
-    // Yardımcı (Private) hata fırlatma metodu
     private void throwIllegalState(AppointmentStatus current, AppointmentStatus target) {
         throw new ConflictException("'" + current + "' statüsündeki bir randevu '" + target + "' statüsüne geçirilemez.");
     }
@@ -156,8 +141,6 @@ public class AppointmentDomainServiceImpl implements IAppointmentDomainService {
         appointment.setStartTime(newStartTime);
         appointment.setEndTime(newEndTime);
 
-        // İş Kuralı: Randevu önceden CONFIRMED (Onaylı) ise,
-        // saat/tarih değiştiği için personelin tekrar onaylaması gerekir.
         if (appointment.getAppointmentStatus() == AppointmentStatus.CONFIRMED) {
             appointment.setAppointmentStatus(AppointmentStatus.PENDING);
         }
