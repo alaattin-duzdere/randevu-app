@@ -101,6 +101,11 @@ public class BusinessDomainService implements IBusinessDomainService {
     }
 
     @Override
+    public boolean existsByIdAndOwnerId(Long businessId, Long ownerId) {
+        return businessRepository.existsByIdAndOwnerId(businessId, ownerId);
+    }
+
+    @Override
     public Business save(Business business) {
         return businessRepository.save(business);
     }
