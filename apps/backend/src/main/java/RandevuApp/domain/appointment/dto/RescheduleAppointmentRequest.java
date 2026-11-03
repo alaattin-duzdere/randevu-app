@@ -2,18 +2,15 @@ package RandevuApp.domain.appointment.dto;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Data
-public class RescheduleAppointmentRequest {
-
-    @NotNull(message = "Yeni başlangıç zamanı boş olamaz")
-    @Future(message = "Yeni saat geçmiş bir tarih olamaz")
-    private LocalDateTime newStartTime;
-
-    @NotNull(message = "Yeni bitiş zamanı boş olamaz")
-    @Future(message = "Yeni saat geçmiş bir tarih olamaz")
-    private LocalDateTime newEndTime;
+public record RescheduleAppointmentRequest(
+        @NotNull(message = "New start time is required")
+        @Future(message = "New start time must be in the future")
+        LocalDateTime newStartTime,
+        @NotNull(message = "New end time is required")
+        @Future(message = "New end time must be in the future")
+        LocalDateTime newEndTime
+) {
 }

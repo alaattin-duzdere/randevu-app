@@ -28,6 +28,8 @@ public interface IBusinessDomainService {
 
     boolean existsBySlug(String slug);
 
+    boolean existsByIdAndOwnerId(Long businessId, Long ownerId);
+
     Business save(Business business);
 
     Business performUpdateBusiness(Business business, UpdateBusinessParams params, Address newAddress);

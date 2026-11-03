@@ -21,6 +21,9 @@ public class Appointment extends BaseEntity {
     @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
 
+    @Column(name = "time_zone", nullable = false)
+    private String timeZone;
+
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
@@ -45,9 +48,12 @@ public class Appointment extends BaseEntity {
     @JoinColumn(name = "staff_id")
     private Staff staff;
 
-    // SNAPSHOT Fields (Yedekleme)
+    // SNAPSHOT Fields
     @Column(name = "customer_name_snapshot")
     private String customerName;
+
+    @Column(name = "customer_last_name_snapshot")
+    private String customerLastName;
 
     @Column(name = "customer_phone_snapshot")
     private String customerPhone;

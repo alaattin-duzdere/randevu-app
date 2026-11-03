@@ -1,12 +1,11 @@
-package RandevuApp.domain.appointment.service.params;
+package RandevuApp.domain.appointment.dto;
 
 import RandevuApp.domain.appointment.model.AppointmentStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record AppointmentSearchCriteria(
-        Long userId,
+public record UserAppointmentFilter(
         Long staffId,
         Long businessId,
         Long serviceId,

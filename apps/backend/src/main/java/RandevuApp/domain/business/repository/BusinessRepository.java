@@ -20,6 +20,8 @@ public interface BusinessRepository extends JpaRepository<Business, Long>, JpaSp
 
     boolean existsByOwnerId(Long ownerId);
 
+    boolean existsByIdAndOwnerId(Long businessId, Long ownerId);
+
     Optional<Business> findBySlug(String slug);
 
     List<Business> findAllByOwner(User owner);
