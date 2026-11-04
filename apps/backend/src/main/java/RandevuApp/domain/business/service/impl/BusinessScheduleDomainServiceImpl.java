@@ -92,15 +92,7 @@ public class BusinessScheduleDomainServiceImpl implements IBusinessScheduleDomai
 
     @Override
     public Page<BusinessScheduleOverride> getOverridesByBusinessIdAndDateRange(Long businessId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        Specification<BusinessScheduleOverride> spec = Specification.where((root, query, cb) -> cb.conjunction());
-
-        spec = spec.and(BusinessScheduleOverrideSpecs.hasBusinessId(businessId));
-        if (startDate != null) {
-            spec = spec.and(BusinessScheduleOverrideSpecs.isAfterOrEqual(startDate));
-        }
-        if (endDate != null) {
-            spec = spec.and(BusinessScheduleOverrideSpecs.isBeforeOrEqual(endDate));
-        }
+        Specification<BusinessScheduleOverride> spec = BusinessScheduleOverrideSpecs.buildSpecification(businessId, startDate, endDate);
 
         return overrideRepository.findAll(spec, pageable);
     }

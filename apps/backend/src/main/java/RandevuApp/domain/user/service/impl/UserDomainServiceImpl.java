@@ -76,7 +76,7 @@ public class UserDomainServiceImpl implements IUserDomainService {
 
     @Override
     public Page<User> getAllUsers(Pageable pageable, String search) {
-        Specification<User> spec = UserSpecifications.withSearch(search);
+        Specification<User> spec = UserSpecifications.buildSpecification(search);
 
         return userRepository.findAll(spec, pageable);
     }

@@ -1,4 +1,3 @@
-
 package RandevuApp.domain.business.repository;
 
 import RandevuApp.domain.business.model.BusinessScheduleOverride;
@@ -9,6 +8,22 @@ import java.time.LocalDate;
 public class BusinessScheduleOverrideSpecs {
 
     private BusinessScheduleOverrideSpecs() {
+    }
+
+    public static Specification<BusinessScheduleOverride> buildSpecification(Long businessId, LocalDate startDate, LocalDate endDate) {
+        Specification<BusinessScheduleOverride> spec = Specification.where((root, query, cb) -> cb.conjunction());
+
+        if (businessId != null) {
+            spec = spec.and(hasBusinessId(businessId));
+        }
+        if (startDate != null) {
+            spec = spec.and(isAfterOrEqual(startDate));
+        }
+        if (endDate != null) {
+            spec = spec.and(isBeforeOrEqual(endDate));
+        }
+
+        return spec;
     }
 
     public static Specification<BusinessScheduleOverride> hasBusinessId(Long businessId) {

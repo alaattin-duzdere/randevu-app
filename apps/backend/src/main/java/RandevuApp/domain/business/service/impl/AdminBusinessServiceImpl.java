@@ -12,7 +12,7 @@ import RandevuApp.domain.business.model.Business;
 import RandevuApp.domain.business.service.params.UpdateBusinessParams;
 import RandevuApp.integration.location.port.IGeocodingPort;
 import RandevuApp.domain.business.repository.BusinessRepository;
-import RandevuApp.domain.business.repository.BusinessSpecification;
+import RandevuApp.domain.business.repository.BusinessSpecs;
 import RandevuApp.domain.business.service.IAdminBusinessService;
 import RandevuApp.domain.business.service.IBusinessDomainService;
 import RandevuApp.domain.user.model.User;
@@ -60,7 +60,7 @@ public class AdminBusinessServiceImpl implements IAdminBusinessService {
     @Override
     @Transactional(readOnly = true)
     public Page<BusinessResponse> searchBusinesses(BusinessSearchRequest searchRequest, Pageable pageable) {
-        Specification<Business> spec = BusinessSpecification.init(searchRequest);
+        Specification<Business> spec = BusinessSpecs.buildSpecification(searchRequest);
         Page<Business> businessPage = businessRepository.findAll(spec, pageable);
         return businessPage.map(businessMapper::businessToBusinessResponse);
     }
