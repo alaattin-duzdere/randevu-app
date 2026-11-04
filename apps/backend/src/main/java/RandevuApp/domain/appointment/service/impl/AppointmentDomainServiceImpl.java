@@ -7,9 +7,7 @@ import RandevuApp.domain.appointment.repository.AppointmentSpecs;
 import RandevuApp.domain.appointment.service.IAppointmentDomainService;
 import RandevuApp.domain.appointment.service.params.AppointmentFindCriteria;
 import RandevuApp.domain.appointment.service.params.CreateAppointmentParams;
-import RandevuApp.domain.service_offering.model.ServiceOffering;
 import RandevuApp.exceptions.client.ConflictException;
-import RandevuApp.exceptions.client.InvalidInputException;
 import RandevuApp.exceptions.client.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,47 +25,15 @@ public class AppointmentDomainServiceImpl implements IAppointmentDomainService {
 
     @Override
     public Page<Appointment> findAppointmentByCriteria(AppointmentFindCriteria criteria, Pageable pageable) {
-        Specification<Appointment> spec = buildSpecification(criteria);
+        Specification<Appointment> spec = AppointmentSpecs.buildSpecification(criteria);
 
         return appointmentRepository.findAll(spec, pageable);
     }
 
     @Override
     public boolean existsByCriteria(AppointmentFindCriteria criteria) {
-        Specification<Appointment> spec = buildSpecification(criteria);
+        Specification<Appointment> spec = AppointmentSpecs.buildSpecification(criteria);
         return appointmentRepository.exists(spec);
-    }
-
-    private Specification<Appointment> buildSpecification(AppointmentFindCriteria criteria) {
-        Specification<Appointment> spec = Specification.where((root, query, cb) -> cb.conjunction());
-
-        if (criteria == null) {
-            return spec;
-        }
-
-        if (criteria.userId() != null) {
-            spec = spec.and(AppointmentSpecs.hasUserId(criteria.userId()));
-        }
-        if (criteria.staffId() != null) {
-            spec = spec.and(AppointmentSpecs.hasStaffId(criteria.staffId()));
-        }
-        if (criteria.businessId() != null) {
-            spec = spec.and(AppointmentSpecs.hasBusinessId(criteria.businessId()));
-        }
-        if (criteria.serviceId() != null) {
-            spec = spec.and(AppointmentSpecs.hasServiceId(criteria.serviceId()));
-        }
-        if (criteria.statuses() != null && !criteria.statuses().isEmpty()) {
-            spec = spec.and(AppointmentSpecs.hasStatuses(criteria.statuses()));
-        }
-        if (criteria.startDate() != null) {
-            spec = spec.and(AppointmentSpecs.isAfterOrEqual(criteria.startDate()));
-        }
-        if (criteria.endDate() != null) {
-            spec = spec.and(AppointmentSpecs.isBeforeOrEqual(criteria.endDate()));
-        }
-
-        return spec;
     }
 
     @Override
