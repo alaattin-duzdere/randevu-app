@@ -16,6 +16,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -121,5 +122,15 @@ public class AppointmentDomainServiceImpl implements IAppointmentDomainService {
     public Appointment getById(Long appointmentId) {
         return appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", appointmentId));
+    }
+
+    @Override
+    public List<Appointment> findActiveAppointmentsByStaffAndFrame(Long staffId, LocalDateTime openTime, LocalDateTime closeTime, List<AppointmentStatus> activeStatuses) {
+        return appointmentRepository.findActiveAppointmentsByStaffAndFrame(staffId, openTime, closeTime, activeStatuses);
+    }
+
+    @Override
+    public List<Appointment> findConflictingAppointments(Long staffId, LocalDateTime requestedStartTime, LocalDateTime requestedEndTime, List<AppointmentStatus> activeStatuses) {
+        return appointmentRepository.findConflictingAppointments(staffId, requestedStartTime, requestedEndTime, activeStatuses);
     }
 }

@@ -4,11 +4,11 @@ import RandevuApp.domain.appointment.model.Appointment;
 import RandevuApp.domain.appointment.model.AppointmentStatus;
 import RandevuApp.domain.appointment.service.params.AppointmentFindCriteria;
 import RandevuApp.domain.appointment.service.params.CreateAppointmentParams;
-import RandevuApp.domain.service_offering.model.ServiceOffering;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface IAppointmentDomainService {
     Appointment createEntity(CreateAppointmentParams params);
@@ -25,4 +25,8 @@ public interface IAppointmentDomainService {
     Page<Appointment> findAppointmentByCriteria(AppointmentFindCriteria criteria, Pageable pageable);
 
     boolean existsByCriteria(AppointmentFindCriteria criteria);
+
+    List<Appointment> findActiveAppointmentsByStaffAndFrame(Long staffId, LocalDateTime openTime, LocalDateTime closeTime, List<AppointmentStatus> activeStatuses);
+
+    List<Appointment> findConflictingAppointments(Long staffId, LocalDateTime requestedStartTime, LocalDateTime requestedEndTime, List<AppointmentStatus> activeStatuses);
 }

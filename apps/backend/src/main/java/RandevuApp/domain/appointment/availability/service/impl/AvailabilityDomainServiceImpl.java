@@ -4,7 +4,7 @@ import RandevuApp.domain.appointment.availability.model.TimeSlot;
 import RandevuApp.domain.appointment.availability.service.IAvailabilityDomainService;
 import RandevuApp.domain.appointment.model.Appointment;
 import RandevuApp.domain.appointment.model.AppointmentStatus;
-import RandevuApp.domain.appointment.repository.AppointmentRepository;
+import RandevuApp.domain.appointment.service.IAppointmentDomainService;
 import RandevuApp.domain.business.model.BusinessOperatingHour;
 import RandevuApp.domain.business.service.IBusinessScheduleDomainService;
 import RandevuApp.domain.time_off.model.TimeOff;
@@ -27,7 +27,7 @@ import java.util.*;
 public class AvailabilityDomainServiceImpl implements IAvailabilityDomainService {
 
     private final IBusinessScheduleDomainService businessScheduleDomainService;
-    private final AppointmentRepository appointmentRepository;
+    private final IAppointmentDomainService appointmentDomainService;
     private final ITimeOffDomainService timeOffDomainService;
 
     private static final int SLOT_INCREMENT_MINUTES =15;
@@ -69,7 +69,7 @@ public class AvailabilityDomainServiceImpl implements IAvailabilityDomainService
         }
 
         // Appointments
-        List<Appointment> appointments = appointmentRepository.findActiveAppointmentsByStaffAndFrame(
+        List<Appointment> appointments = appointmentDomainService.findActiveAppointmentsByStaffAndFrame(
                 staffId,
                 openTime,
                 closeTime,
@@ -156,7 +156,7 @@ public class AvailabilityDomainServiceImpl implements IAvailabilityDomainService
             throw new SlotUnavailableException("Seçilen saatlerde personelin izni veya molası bulunmaktadır.");
         }
 
-        List<Appointment> overlappingAppointments = appointmentRepository.findConflictingAppointments(
+        List<Appointment> overlappingAppointments = appointmentDomainService.findConflictingAppointments(
                 staffId,
                 requestedStartTime,
                 requestedEndTime,
