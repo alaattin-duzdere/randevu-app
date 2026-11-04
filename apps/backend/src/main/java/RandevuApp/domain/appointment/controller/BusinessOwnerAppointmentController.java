@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/businesses/{businessId}/appointments")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('BUSINESS_OWNER') and @businessAccess.isOwner(#businessId, authentication)")
+@PreAuthorize("hasRole('BUSINESS_OWNER') and @businessAccess.isOwner(#businessId)")
 public class BusinessOwnerAppointmentController {
 
     private final IBusinessOwnerAppointmentService businessOwnerAppointmentService;

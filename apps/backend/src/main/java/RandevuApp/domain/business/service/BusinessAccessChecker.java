@@ -1,7 +1,7 @@
 package RandevuApp.domain.business.service;
 
+import RandevuApp.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component("businessAccess")
@@ -10,8 +10,8 @@ public class BusinessAccessChecker {
 
     private final IBusinessDomainService businessDomainService;
 
-    public boolean isOwner(Long businessId, Authentication authentication) {
-        Long userId = Long.parseLong(authentication.getName());
+    public boolean isOwner(Long businessId) {
+        Long userId = SecurityUtils.getCurrentUserId();
         return businessDomainService.existsByIdAndOwnerId(businessId, userId);
     }
 }

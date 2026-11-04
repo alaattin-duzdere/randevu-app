@@ -5,6 +5,7 @@ import RandevuApp.domain.business.dto.BusinessSearchRequest;
 import RandevuApp.domain.business.dto.CreateBusinessRequest;
 import RandevuApp.domain.business.dto.UpdateBusinessRequest;
 import RandevuApp.domain.business.service.IBusinessService;
+import RandevuApp.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,11 +28,9 @@ public class BusinessController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BusinessResponse createBusiness(
-            @Valid @RequestBody CreateBusinessRequest request,
-            Authentication authentication
+            @Valid @RequestBody CreateBusinessRequest request
     ) {
-        Long ownerId = Long.parseLong(authentication.getName());
-
+        Long ownerId = SecurityUtils.getCurrentUserId();
         return businessService.createBusiness(request, ownerId);
     }
 
@@ -47,8 +45,8 @@ public class BusinessController {
     }
 
     @GetMapping("/my-businesses")
-    public List<BusinessResponse> getMyBusinesses(Authentication authentication) {
-        Long ownerId = Long.parseLong(authentication.getName());
+    public List<BusinessResponse> getMyBusinesses() {
+        Long ownerId = SecurityUtils.getCurrentUserId();
         return businessService.getBusinessesByOwner(ownerId);
     }
 
@@ -63,20 +61,18 @@ public class BusinessController {
     @PutMapping("/{id}")
     public BusinessResponse updateBusiness(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateBusinessRequest request,
-            Authentication authentication
+            @Valid @RequestBody UpdateBusinessRequest request
     ) {
-        Long ownerId = Long.parseLong(authentication.getName());
+        Long ownerId = SecurityUtils.getCurrentUserId();
         return businessService.updateBusiness(id, request, ownerId);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBusiness(
-            @PathVariable Long id,
-            Authentication authentication
+            @PathVariable Long id
     ) {
-        Long ownerId = Long.parseLong(authentication.getName());
+        Long ownerId = SecurityUtils.getCurrentUserId();
         businessService.deleteBusiness(id, ownerId);
     }
 
