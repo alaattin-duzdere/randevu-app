@@ -1,6 +1,7 @@
 package RandevuApp.domain.business.dto;
 
 import RandevuApp.commons.validator.ValidTimeZone;
+import RandevuApp.domain.business.model.BusinessType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,7 +15,9 @@ public record UpdateBusinessRequest(
 
         @ValidTimeZone String timeZone,
 
-        Boolean active
+        Boolean active,
+
+        @NotNull(message = "Business type is required") BusinessType businessType
 ) {
     public UpdateBusinessRequest {
         if (active == null) active = true;

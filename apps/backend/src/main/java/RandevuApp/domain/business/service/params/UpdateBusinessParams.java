@@ -1,10 +1,13 @@
 package RandevuApp.domain.business.service.params;
 
+import RandevuApp.domain.business.model.BusinessType;
+
 public record UpdateBusinessParams(
         String name,
         String description,
         String timeZone,
-        Boolean active
+        Boolean active,
+        BusinessType businessType
 ) {
     public UpdateBusinessParams {
         if (name == null) {
@@ -15,6 +18,9 @@ public record UpdateBusinessParams(
         }
         if (timeZone == null) {
             throw new IllegalArgumentException("Time zone is required");
+        }
+        if (businessType == null) {
+            throw new IllegalArgumentException("Business type is required");
         }
     }
 }

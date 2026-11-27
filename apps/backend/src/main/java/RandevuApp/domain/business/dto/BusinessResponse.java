@@ -1,6 +1,7 @@
 package RandevuApp.domain.business.dto;
 
 import RandevuApp.domain.business.model.Address;
+import RandevuApp.domain.business.model.BusinessType;
 import RandevuApp.domain.user.dto.UserResponse;
 
 import java.util.List;
@@ -16,5 +17,6 @@ public record BusinessResponse(
         UserResponse owner,
         BusinessSettingsResponse businessSettings,
         List<Long> staffIds,
-        List<Long> serviceIds
+        List<Long> serviceIds,
+        BusinessType businessType
 ) {}

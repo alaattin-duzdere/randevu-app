@@ -1,6 +1,7 @@
 package RandevuApp.domain.business.dto;
 
 import RandevuApp.commons.validator.ValidTimeZone;
+import RandevuApp.domain.business.model.BusinessType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,5 +19,7 @@ public record CreateBusinessRequest(
         @ValidTimeZone String timeZone,
 
         @Pattern(regexp = "^[a-z0-9-]+$", message = "Slug can only contain lowercase letters, numbers, and hyphens")
-        @Size(max = 100) String slug
+        @Size(max = 100) String slug,
+
+        @NotNull(message = "Business type is required") BusinessType businessType
 ) {}

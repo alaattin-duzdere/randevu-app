@@ -91,7 +91,8 @@ public class AdminBusinessServiceImpl implements IAdminBusinessService {
                 request.name(),
                 request.description(),
                 request.timeZone(),
-                request.active()
+                request.active(),
+                request.businessType()
         );
         Business updatedBusiness = businessDomainService.performUpdateBusiness(business, params, address);
 
