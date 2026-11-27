@@ -2,6 +2,7 @@ package RandevuApp.domain.business.repository;
 
 import RandevuApp.domain.business.dto.BusinessSearchRequest;
 import RandevuApp.domain.business.model.Business;
+import RandevuApp.domain.business.model.BusinessType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
@@ -33,6 +34,10 @@ public class BusinessSpecs {
             spec = spec.and(isActive(request.active()));
         }
 
+        if (request.businessType() != null) {
+            spec = spec.and(hasBusinessType(request.businessType()));
+        }
+
         return spec;
     }
 
@@ -59,5 +64,8 @@ public class BusinessSpecs {
     public static Specification<Business> isActive(Boolean active) {
         return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("active"), active);
     }
-}
 
+    public static Specification<Business> hasBusinessType(BusinessType businessType) {
+        return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get("businessType"), businessType);
+    }
+}

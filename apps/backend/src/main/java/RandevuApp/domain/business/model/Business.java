@@ -22,6 +22,11 @@ public class Business extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "business_type", nullable = false)
+    @Builder.Default
+    private BusinessType businessType = BusinessType.OTHER;
+
     @Embedded
     private Address address;
 

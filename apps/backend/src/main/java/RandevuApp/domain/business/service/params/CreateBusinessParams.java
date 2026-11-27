@@ -1,13 +1,15 @@
 package RandevuApp.domain.business.service.params;
 
 import RandevuApp.domain.business.model.Address;
+import RandevuApp.domain.business.model.BusinessType;
 
 public record CreateBusinessParams(
         String name,
         Address address,
         String description,
         String timeZone,
-        String slug
+        String slug,
+        BusinessType businessType
 ) {
     public CreateBusinessParams {
         if (name == null || name.trim().length() < 2) {
@@ -21,6 +23,9 @@ public record CreateBusinessParams(
         }
         if (slug == null || slug.trim().length() < 2) {
             throw new IllegalArgumentException("Slug must be at least 2 characters long");
+        }
+        if (businessType == null) {
+            throw new IllegalArgumentException("Business type is required");
         }
     }
 }

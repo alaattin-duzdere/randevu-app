@@ -49,7 +49,8 @@ public class BusinessMapper {
                 userMapper.userToUserResponse(business.getOwner()),
                 businessSettingsResponse,
                 staffIds,
-                serviceIds
+                serviceIds,
+                business.getBusinessType()
         );
     }
 

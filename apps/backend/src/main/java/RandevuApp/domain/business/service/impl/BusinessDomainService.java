@@ -38,6 +38,7 @@ public class BusinessDomainService implements IBusinessDomainService {
         business.setName(param.name());
         business.setAddress(address);
         business.setDescription(param.description());
+        business.setBusinessType(param.businessType());
         business.setActive(true);
         business.setOwner(owner);
 
@@ -121,6 +122,7 @@ public class BusinessDomainService implements IBusinessDomainService {
         business.setDescription(params.description());
         business.setTimeZone(params.timeZone());
         business.setActive(params.active());
+        business.setBusinessType(params.businessType());
 
         return businessRepository.save(business);
     }
